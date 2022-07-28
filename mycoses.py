@@ -48,12 +48,242 @@ class Game:
                             'a1': '.', 'b1': '.', 'c1': '.', 'd1': '.', 'e1': '.', 'f1': '.', 'g1': '.', 'h1': '.'
                             }
         self.active_pieces = []
-        
-    def square_on_board(self, square):
-        pass 
-    
+
+    def get_upper_numeric_limit(self, num):
+        string_num_square = str(num)
+        tens = string_num_square[0]
+        ones_limit = '8'
+        edge = int(tens + ones_limit)
+        return edge
+
+    def get_bottom_numeric_limit(self, num):
+        string_num_square = str(num)
+        tens = string_num_square[0]
+        ones_limit = '1'
+        edge = int(tens + ones_limit)
+        return edge
+
+    def get_right_numeric_limit(self, num):
+        string_num_square = str(num)
+        ones = string_num_square[1]
+        tens_right_limit = '8'
+        edge = int(tens_right_limit + ones)
+        return edge
+
+    def get_left_numeric_limit(self, num):
+        string_num_square = str(num)
+        ones = string_num_square[1]
+        tens_left_limit = '1'
+        edge = int(tens_left_limit + ones)
+        return edge
+
+    def bishop_queen_up_right_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        bq_up_right_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        current_num = origin + 11
+        while self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                bq_up_right_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                bq_up_right_range.append(square)
+                return bq_up_right_range
+            else:
+                return bq_up_right_range
+
+            current_num += 11
+
+        return bq_up_right_range
+
+    def bishop_queen_down_left_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        bq_down_left_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        current_num = origin - 11
+        while self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                bq_down_left_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                bq_down_left_range.append(square)
+                return bq_down_left_range
+            else:
+                return bq_down_left_range
+
+            current_num -= 11
+
+        return bq_down_left_range
+
+    def bishop_queen_up_left_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        bq_up_left_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        current_num = origin - 9
+        while self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                bq_up_left_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                bq_up_left_range.append(square)
+                return bq_up_left_range
+            else:
+                return bq_up_left_range
+
+            current_num -= 9
+
+        return bq_up_left_range
+
+    def bishop_queen_down_right_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        bq_down_right_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        current_num = origin + 9
+        while self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                bq_down_right_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                bq_down_right_range.append(square)
+                return bq_down_right_range
+            else:
+                return bq_down_right_range
+
+            current_num += 9
+
+        return bq_down_right_range
+
+
+    def rook_queen_up_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        rq_up_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        upper_edge = self.get_upper_numeric_limit(origin)
+        current_num = origin + 1
+        while current_num <= upper_edge and self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                rq_up_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                rq_up_range.append(square)
+                return rq_up_range
+            else:
+                return rq_up_range
+
+            current_num += 1
+
+        return rq_up_range
+
+    def rook_queen_down_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        rq_down_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        bottom_edge = self.get_bottom_numeric_limit(origin)
+        current_num = origin - 1
+        while (current_num >= bottom_edge) and (self.num_square_on_reference_board_num(current_num)):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                rq_down_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                rq_down_range.append(square)
+                return rq_down_range
+            else:
+                return rq_down_range
+
+            current_num -= 1
+
+        return rq_down_range
+
+    def rook_queen_right_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        rq_right_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        right_edge = self.get_right_numeric_limit(origin)
+        current_num = origin + 10
+        while current_num <= right_edge and self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                rq_right_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                rq_right_range.append(square)
+                return rq_right_range
+            else:
+                return rq_right_range
+
+            current_num += 10
+
+        return rq_right_range
+
+    def rook_queen_left_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        rq_left_range = []
+        origin = self.get_num_by_alphanum(alphanum)
+        left_edge = self.get_left_numeric_limit(origin)
+        current_num = origin - 10
+        while current_num >= left_edge and self.num_square_on_reference_board_num(current_num):
+            square = self.get_alphanum_by_num(current_num)
+            occupant = self.game_board[square]
+            if occupant == '.':
+                rq_left_range.append(square)
+            elif occupant.get_team() != moving_piece.get_team():
+                rq_left_range.append(square)
+                return rq_left_range
+            else:
+                return rq_left_range
+
+            current_num -= 10
+
+        return rq_left_range
+
+    def knight_range(self, alphanum):
+        moving_piece = self.get_occupant_by_alphanum(alphanum)
+        n_range = []
+        current_num = self.get_num_by_alphanum(alphanum)
+        default_octopus_nums = [(current_num+12), (current_num+21), (current_num+19), (current_num + 8),
+                                (current_num-12), (current_num-21), (current_num-19), (current_num-8)]
+
+        for option in default_octopus_nums:
+            if self.num_square_on_reference_board_num(option):
+                if self.get_occupant_by_num(option) == '.':
+                    alphanum = self.get_alphanum_by_num(option)
+                    n_range.append(alphanum)
+
+                else:
+                    destination_occupant = self.get_occupant_by_num(option)
+                    if destination_occupant.get_team() != moving_piece.get_team():
+                        alphanum = self.get_alphanum_by_num(option)
+                        n_range.append(alphanum)
+
+        return n_range
+
+    def square_on_board_alphanum(self, square):
+        """determines whether a given square coordinate is on the game_board"""
+        for key in self.game_board.keys():
+            if key == square:
+                return True
+        return False
+
+    def num_square_on_reference_board_num(self, num):
+        """determines whether a given number is a key on the reference_board"""
+        for key in self.reference_board.keys():
+            if key == num:
+                return True
+        return False
+
     def get_alphanum_by_num(self, num):
         return self.reference_board[num]
+
+    def get_num_by_alphanum(self, alphanum):
+        for key in self.reference_board.keys():
+            if self.reference_board[key] == alphanum:
+                return key
 
     def get_occupant_by_alphanum(self, square):
         return self.game_board[square]
@@ -71,10 +301,10 @@ class Game:
         moving_piece = self.get_occupant_by_alphanum(origin)
         self.set_square_occupant(destination, moving_piece)
         self.set_square_occupant(origin, '.')
-        self.active_pieces.remove(occupant)
         moving_piece.set_square(destination)
         if occupant != '.':
             occupant.set_square(None)
+            self.active_pieces.remove(occupant)
         return
 
     def occupant_is_piece_by_alphanum(self, alphanum):
@@ -167,29 +397,44 @@ class Game:
         return
 
 
-    
-
-
-
-
-
 def main():
-    
+
     game = Game()
     game.generate_pieces()
     game.set_pieces()
     game.print_board()
-    game.move_piece('a2','a4')
+    for x in game.active_pieces:
+        print(f"{x.get_team()} {x.get_piece_type()} on {x.get_square()}")
+    game.move_piece('a2', 'a4')
     game.print_board()
     game.move_piece('b7', 'b5')
     game.print_board()
     game.move_piece('a4', 'b5')
     game.print_board()
 
+    print(game.rook_queen_up_range('c2'))
+    print(game.rook_queen_down_range('a7'))
+    for x in game.active_pieces:
+        print(f"{x.get_team()} {x.get_piece_type()} on {x.get_square()}")
+
+    print(game.rook_queen_right_range('b5'))
+    game.move_piece('h2', 'h4')
+    game.move_piece('d2', 'd4')
+    print(game.rook_queen_left_range('h4'))
+    game.print_board()
+    print(game.bishop_queen_up_right_range('d4'))
+    print(game.bishop_queen_up_left_range('d4'))
+    print(game.bishop_queen_down_right_range('d4'))
+    print(game.bishop_queen_down_left_range('d4'))
+    print(game.knight_range('d4'))
+    print(game.knight_range('g7'))
+
+
+
+
 
 if __name__ == '__main__':
     main()
-
 
 
 
