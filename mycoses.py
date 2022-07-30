@@ -48,6 +48,119 @@ class Game:
                             'a1': '.', 'b1': '.', 'c1': '.', 'd1': '.', 'e1': '.', 'f1': '.', 'g1': '.', 'h1': '.'
                             }
         self.active_pieces = []
+        self.game_history = []
+        self.moving_team = 1
+
+    def reset_game(self):
+        self.active_pieces = []
+        self.moving_team = 1
+        self.game_board = {
+            'a8': '.', 'b8': '.', 'c8': '.', 'd8': '.', 'e8': '.', 'f8': '.', 'g8': '.', 'h8': '.',
+            'a7': '.', 'b7': '.', 'c7': '.', 'd7': '.', 'e7': '.', 'f7': '.', 'g7': '.', 'h7': '.',
+            'a6': '.', 'b6': '.', 'c6': '.', 'd6': '.', 'e6': '.', 'f6': '.', 'g6': '.', 'h6': '.',
+            'a5': '.', 'b5': '.', 'c5': '.', 'd5': '.', 'e5': '.', 'f5': '.', 'g5': '.', 'h5': '.',
+            'a4': '.', 'b4': '.', 'c4': '.', 'd4': '.', 'e4': '.', 'f4': '.', 'g4': '.', 'h4': '.',
+            'a3': '.', 'b3': '.', 'c3': '.', 'd3': '.', 'e3': '.', 'f3': '.', 'g3': '.', 'h3': '.',
+            'a2': '.', 'b2': '.', 'c2': '.', 'd2': '.', 'e2': '.', 'f2': '.', 'g2': '.', 'h2': '.',
+            'a1': '.', 'b1': '.', 'c1': '.', 'd1': '.', 'e1': '.', 'f1': '.', 'g1': '.', 'h1': '.'
+        }
+        self.generate_pieces()
+        self.set_pieces()
+        print("NEW GAME!")
+        return
+
+    def get_moving_team(self):
+        return self.moving_team
+
+    def update_moving_team(self):
+        self.moving_team += 1
+        return
+
+    def get_moving_team_color(self):
+        if self.moving_team % 2 == 0:
+            return "black"
+
+        if self.moving_team % 2 == 1:
+            return "white"
+
+    def king_normal_range(self, alphanum):
+        #king_normal_options = []
+        #+1, +11, +10, +9, -1, -11, -10, -9
+        pass
+
+    def squares_attacked_by_team(self, team):
+        pass
+
+    def pawn_forward_range(self, alphanum):
+        pawn_up_range = []
+        pawn = self.get_occupant_by_alphanum(alphanum)
+        pawn_reference_location = self.get_num_by_alphanum(alphanum)
+        team = pawn.get_team()
+
+        if team == 'black':
+            if pawn_reference_location%10==7:
+                one_square_num_destination = pawn_reference_location - 1
+                two_square_num_destination = pawn_reference_location - 2
+                one_square_occupant = self.get_occupant_by_num(one_square_num_destination)
+                two_square_occupant = self.get_occupant_by_num(two_square_num_destination)
+                if one_square_occupant == '.':
+                    first_square = self.get_alphanum_by_num(one_square_num_destination)
+                    pawn_up_range.append(first_square)
+                    if two_square_occupant == '.':
+                        second_square = self.get_alphanum_by_num(two_square_num_destination)
+                        pawn_up_range.append(second_square)
+
+        if team == 'white':
+            if pawn_reference_location % 10 == 2:
+                one_square_num_destination = pawn_reference_location + 1
+                two_square_num_destination = pawn_reference_location + 2
+                one_square_occupant = self.get_occupant_by_num(one_square_num_destination)
+                two_square_occupant = self.get_occupant_by_num(two_square_num_destination)
+                if one_square_occupant == '.':
+                    first_square = self.get_alphanum_by_num(one_square_num_destination)
+                    pawn_up_range.append(first_square)
+                    if two_square_occupant == '.':
+                        second_square = self.get_alphanum_by_num(two_square_num_destination)
+                        pawn_up_range.append(second_square)
+
+        return pawn_up_range
+
+    def pawn_direct_capture_range(self, alphanum):
+        pawn_direct_captures = []
+        pawn = self.get_occupant_by_alphanum(alphanum)
+        pawn_num_location = self.get_num_by_alphanum(alphanum)
+        team = pawn.get_team()
+        if team == 'black':
+            if self.num_square_on_reference_board_num(pawn_num_location-11):
+                target_one = self.get_occupant_by_num(pawn_num_location-11)
+                if target_one != '.':
+                    if target_one.get_team() != team:
+                        capture_square = self.get_alphanum_by_num(pawn_num_location-11)
+                        pawn_direct_captures.append(capture_square)
+
+            if self.num_square_on_reference_board_num(pawn_num_location+9):
+                target_two = self.get_occupant_by_num(pawn_num_location+9)
+                if target_two != '.':
+                    if target_two.get_team() != team:
+                        capture_square = self.get_alphanum_by_num(pawn_num_location+9)
+                        pawn_direct_captures.append(capture_square)
+
+        if team == 'white':
+            if self.num_square_on_reference_board_num(pawn_num_location + 11):
+                target_one = self.get_occupant_by_num(pawn_num_location + 11)
+                if target_one != '.':
+                    if target_one.get_team() != team:
+                        capture_square = self.get_alphanum_by_num(pawn_num_location + 11)
+                        pawn_direct_captures.append(capture_square)
+
+            if self.num_square_on_reference_board_num(pawn_num_location - 9):
+                target_two = self.get_occupant_by_num(pawn_num_location - 9)
+                if target_two != '.':
+                    if target_two.get_team() != team:
+                        capture_square = self.get_alphanum_by_num(pawn_num_location - 9)
+                        pawn_direct_captures.append(capture_square)
+
+        return pawn_direct_captures
 
     def get_upper_numeric_limit(self, num):
         string_num_square = str(num)
@@ -156,7 +269,6 @@ class Game:
             current_num += 9
 
         return bq_down_right_range
-
 
     def rook_queen_up_range(self, alphanum):
         moving_piece = self.get_occupant_by_alphanum(alphanum)
@@ -299,11 +411,19 @@ class Game:
     def move_piece(self, origin, destination):
         occupant = self.get_occupant_by_alphanum(destination)
         moving_piece = self.get_occupant_by_alphanum(origin)
-        self.set_square_occupant(destination, moving_piece)
-        self.set_square_occupant(origin, '.')
-        moving_piece.set_square(destination)
-        if occupant != '.':
+        if occupant == '.':
+            self.set_square_occupant(destination, moving_piece)
+            self.set_square_occupant(origin, '.')
+            moving_piece.set_square(destination)
+            return
+
+        elif occupant.get_team() == moving_piece.get_team():
+            print("Can't capture a piece of the same color!")
+            return
+        else:
             occupant.set_square(None)
+            self.set_square_occupant(destination, moving_piece)
+            self.set_square_occupant(origin, '.')
             self.active_pieces.remove(occupant)
         return
 
@@ -364,6 +484,61 @@ class Game:
             self.active_pieces.append(piece)
         return
 
+    def get_active_pieces(self):
+        active_pieces = self.active_pieces
+        return active_pieces
+
+    def get_opponent_active_pieces_by_moving_team(self, moving_team):
+        opponent_active_pieces = []
+        active_pieces = self.get_active_pieces()
+        for piece in active_pieces:
+            if piece.get_team() != moving_team:
+                opponent_active_pieces.append(piece)
+
+        return opponent_active_pieces
+
+    def get_opponent_active_pieces_by_moving_team(self, moving_team):
+        opponent_active_pieces = []
+        active_pieces = self.get_active_pieces()
+        for piece in active_pieces:
+            if piece.get_team() != moving_team:
+                opponent_active_pieces.append(piece)
+        return opponent_active_pieces
+
+
+    def get_opponent_moves_by_moving_team(self, moving_team):
+        opponent_moves = []
+        opponents = self.get_opponent_active_pieces_by_moving_team(moving_team)
+        for opponent in opponents:
+            if opponent.get_piece_type() == 'Q':
+                square = opponent.get_square()
+                queen_options = self.get_queen_current_options(square)
+                for option in queen_options:
+                    opponent_moves.append(option)
+            if opponent.get_piece_type() == 'R':
+                square = opponent.get_square()
+                rook_options = self.get_rook_current_options(square)
+                for option in rook_options:
+                    opponent_moves.append(option)
+            if opponent.get_piece_type() == 'B':
+                square = opponent.get_square()
+                bishop_options = self.get_bishop_current_options(square)
+                for option in bishop_options:
+                    opponent_moves.append(option)
+            if opponent.get_piece_type() == 'N':
+                square = opponent.get_square()
+                knight_options = self.get_knight_current_options(square)
+                for option in knight_options:
+                    opponent_moves.append(option)
+
+            if opponent.get_piece_type() == 'p':
+                square = opponent.get_square()
+                pawn_options = self.get_pawn_current_options(square)
+                for option in pawn_options:
+                    opponent_moves.append(option)
+
+            return opponent_moves
+
     def set_pieces(self):
         for piece in self.active_pieces:
             square = piece.get_square()
@@ -396,45 +571,153 @@ class Game:
 
         return
 
+    def get_rook_current_options(self, origin):
+        current_options = []
+        u =  self.rook_queen_up_range(origin)
+        d =  self.rook_queen_down_range(origin)
+        r =  self.rook_queen_right_range(origin)
+        l =  self.rook_queen_left_range(origin)
+        all_options_lists = [u, d, r, l]
+        for options_list in all_options_lists:
+            for option in options_list:
+                current_options.append(option)
+        return current_options
+
+    def get_queen_current_options(self, origin):
+        current_options = []
+        ur = self.bishop_queen_up_right_range(origin)
+        ul = self.bishop_queen_up_left_range(origin)
+        dr = self.bishop_queen_down_right_range(origin)
+        dl = self.bishop_queen_down_left_range(origin)
+        u = self.rook_queen_up_range(origin)
+        d = self.rook_queen_down_range(origin)
+        r = self.rook_queen_right_range(origin)
+        l = self.rook_queen_left_range(origin)
+        all_options_lists = [ur, ul, dr, dl, u, d, r, l]
+        for options_list in all_options_lists:
+            for option in options_list:
+                current_options.append(option)
+        return current_options
+
+    def get_pawn_current_options(self, origin):
+        current_options = []
+
+        capture_options = self.pawn_direct_capture_range(origin)
+        for option in capture_options:
+            current_options.append(option)
+
+        forward_options = self.pawn_forward_range(origin)
+        for option in forward_options:
+            current_options.append(option)
+
+        return current_options
+
+    def get_bishop_current_options(self, origin):
+        current_options = []
+        ur = self.bishop_queen_up_right_range(origin)
+        ul = self.bishop_queen_up_left_range(origin)
+        dr = self.bishop_queen_down_right_range(origin)
+        dl = self.bishop_queen_down_left_range(origin)
+        all_options_lists = [ur, ul, dr, dl]
+        for options_list in all_options_lists:
+            for option in options_list:
+                current_options.append(option)
+        return current_options
+
+    def get_knight_current_options(self, origin):
+        current_options = self.knight_range(origin)
+        return current_options
+
+    def play(self, origin, destination):
+        print(f"({self.get_moving_team_color()}'s turn)")
+        # check that origin is on board
+        if self.square_on_board_alphanum(origin) is False:
+            print(f"The square {origin} is not on the board.  Choose a valid square")
+            return
+
+        moving_piece = self.get_occupant_by_alphanum(origin)
+        
+        # check that moving_piece is actually a piece and not an empty square
+        if moving_piece == '.':
+            print(f"There is no piece on {origin}!  Choose a piece to move!")
+            return
+
+        # check that turn and color match up
+        if moving_piece.get_team() != self.get_moving_team_color():
+            print(f"It's not {moving_piece.get_team()}'s turn, it's {self.get_moving_team_color()}'s turn")
+            return
+
+        # check that the move is on board
+        if self.square_on_board_alphanum(destination) is False:
+            print(f"{destination} is not a valid board square.")
+            return
+
+        # make sure that the specific piece is moving to a valid option in the position
+        piece_type = moving_piece.get_piece_type()
+        if piece_type == "Q":
+            queen_moves = self.get_queen_current_options(origin)
+            if destination not in queen_moves:
+                print(f"That is not an option for the {moving_piece.get_team()} queen on {origin}")
+                return
+
+        if piece_type == "R":
+            rook_moves = self.get_rook_current_options(origin)
+            if destination not in rook_moves:
+                print(f"That is not an option for the {moving_piece.get_team()} rook on {origin}")
+                return
+
+        if piece_type == "N":
+            knight_moves = self.get_knight_current_options(origin)
+            if destination not in knight_moves:
+                print(f"That is not an option for the {moving_piece.get_team()} knight on {origin}")
+                return
+
+        if piece_type == "B":
+            bishop_moves = self.get_bishop_current_options(origin)
+            if destination not in bishop_moves:
+                print(f"That is not an option for the {moving_piece.get_team()} bishop on {origin}")
+                return
+
+        if piece_type == "p":
+            pawn_moves = self.get_pawn_current_options(origin)
+            if destination not in pawn_moves:
+                print(f"That is not an option for the {moving_piece.get_team()} pawn on {origin}")
+                return
+
+                # make move
+        self.move_piece(origin, destination)
+
+        # store move
+        this_move = (origin, destination)
+        self.game_history.append(this_move)
+
+        # update moving team
+        self.update_moving_team()
+
+        return
+
 
 def main():
-
     game = Game()
     game.generate_pieces()
     game.set_pieces()
-    game.print_board()
-    for x in game.active_pieces:
-        print(f"{x.get_team()} {x.get_piece_type()} on {x.get_square()}")
-    game.move_piece('a2', 'a4')
-    game.print_board()
-    game.move_piece('b7', 'b5')
-    game.print_board()
-    game.move_piece('a4', 'b5')
-    game.print_board()
 
-    print(game.rook_queen_up_range('c2'))
-    print(game.rook_queen_down_range('a7'))
-    for x in game.active_pieces:
-        print(f"{x.get_team()} {x.get_piece_type()} on {x.get_square()}")
+    while True:
+        print(f"{game.get_moving_team_color()}'s turn!")
+        game.print_board()
+        prompt_user_action = input("Type 'm' to move a piece or 'r' to reset game:   ")
+        if prompt_user_action == 'm':
+            prompt_origin = input("Enter a square to move from:  ")
+            prompt_destination = input("Enter a square to move to:  ")
+            game.play(prompt_origin, prompt_destination)
 
-    print(game.rook_queen_right_range('b5'))
-    game.move_piece('h2', 'h4')
-    game.move_piece('d2', 'd4')
-    print(game.rook_queen_left_range('h4'))
-    game.print_board()
-    print(game.bishop_queen_up_right_range('d4'))
-    print(game.bishop_queen_up_left_range('d4'))
-    print(game.bishop_queen_down_right_range('d4'))
-    print(game.bishop_queen_down_left_range('d4'))
-    print(game.knight_range('d4'))
-    print(game.knight_range('g7'))
-
-
-
+        if prompt_user_action == 'r':
+            game.reset_game()
 
 
 if __name__ == '__main__':
     main()
+
 
 
 
