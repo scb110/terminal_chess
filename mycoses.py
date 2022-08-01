@@ -433,24 +433,19 @@ class ChessGame:
         for this_piece in all_pieces:
             self._pieces.append(this_piece)
 
-        for piece in self._pieces:
-            for coord in self._boardcoordinates:
-                if piece.get_square() == coord:
-                    print(f"{piece.get_square()} = {self._boardcoordinates[coord]}")
+        #for piece in self._pieces:
+        #    for coord in self._boardcoordinates:
+        #        if piece.get_square() == coord:
+        #            print(f"{piece.get_square()} = {self._boardcoordinates[coord]}")
+        return
 
     def set_pieces(self):
         """A method to to take all pieces in the self._pieces array and place them on the board"""
 
-        #for piece in self._pieces:
-        #    for coord in self._boardcoordinates:
-        #        if piece.get_square() == coord:
-        #            set_piece_at = int(self._boardcoordinates[coord])
-        #            self._active_board[set_piece_at] = piece.get_shape()
         for piece in self._pieces:
             location = piece.get_square()
             self.update_square(location, piece)
 
-    
     def queen_options_this_turn(self, queen_pos):
         current_options = []
         ur = self.bishop_queen_up_right_range(queen_pos)
@@ -479,7 +474,6 @@ class ChessGame:
             current_options.append(option)
         
         return current_options
-        
 
     def pawn_oblique_options(self, square):
         pawn_diags = []
@@ -524,8 +518,6 @@ class ChessGame:
 
         return pawn_diags
 
-
-    
     def pawn_forward_range(self, square):
         pawn_forward_options = []
         moving_piece = self.get_piece_on_square(square)
@@ -586,9 +578,7 @@ class ChessGame:
                 print("Time to promote this pawn")
                     
                 return pawn_forward_options
-    
-    
-    
+
     def rook_options_this_turn(self, rook_pos):
         current_options = []
         u =  self.rook_queen_up_range(rook_pos)
@@ -789,6 +779,9 @@ class ChessGame:
         hypothetical.set_pieces()
         hypothetical.copy_position(self._game_history)
         hypothetical.move_piece(start_square, try_square)
+        # store move in hypothetical history
+        this_move = (start_square, try_square)
+        hypothetical._game_history.append(this_move)
 
         # pull up checked team's pieces
         if color == 'black':
@@ -802,7 +795,7 @@ class ChessGame:
                 if ally.get_shape() == 'K':
                     potentials = hypothetical.king_directionals(starting_point)
                     for option in potentials:
-                        if hypothetical.king_move_is_legal(starting_point, option):
+                        if hypothetical.king_move_is_legal(starting_point, option, 'white'):
                             # see if still check...if not return False
                             if hypothetical.still_in_check(starting_point, option, 'white') is False:
                                 return False
@@ -845,7 +838,7 @@ class ChessGame:
                 if ally.get_shape() == 'K':
                     potentials = hypothetical.king_directionals(starting_point)
                     for option in potentials:
-                        if hypothetical.king_move_is_legal(starting_point, option):
+                        if hypothetical.king_move_is_legal(starting_point, option, 'black'):
                             # see if still check...if not return False
                             if hypothetical.still_in_check(starting_point, option, 'black') is False:
                                 return False
@@ -1146,11 +1139,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
 
 
 
