@@ -1,706 +1,1135 @@
-class Piece:
-    def __init__(self, piecetype, team, square):
-        self.piecetype = piecetype
-        self.team = team
-        self.square = square
+#from dataclasses import replace
+#from functools import total_ordering
+#from turtle import down
+#from unicodedata import numeric
+#from modules.colors import Colors
+#c = Colors
+class ChessGame:
+    """This class provides the foundation for two players to engaage in a
+    friendly(or not so friendly...) game of command line chess"""
 
-    def set_piece_type(self, piecetype):
-        self.piecetype = piecetype
-
-    def get_piece_type(self):
-        return self.piecetype
-
-    def set_team(self, team):
-        self.team = team
-
-    def get_team(self):
-        return self.team
-
-    def set_square(self, square):
-        self.square = square
-
-    def get_square(self):
-        return self.square
-
-
-class Game:
     def __init__(self):
-        self.reference_board = {
-
-                            18: 'a8', 28: 'b8', 38: 'c8', 48: 'd8', 58: 'e8', 68: 'f8', 78: 'g8', 88: 'h8',
-                            17: 'a7', 27: 'b7', 37: 'c7', 47: 'd7', 57: 'e7', 67: 'f7', 77: 'g7', 87: 'h7',
-                            16: 'a6', 26: 'b6', 36: 'c6', 46: 'd6', 56: 'e6', 66: 'f6', 76: 'g6', 86: 'h6',
-                            15: 'a5', 25: 'b5', 35: 'c5', 45: 'd5', 55: 'e5', 65: 'f5', 75: 'g5', 85: 'h5',
-                            14: 'a4', 24: 'b4', 34: 'c4', 44: 'd4', 54: 'e4', 64: 'f4', 74: 'g4', 84: 'h4',
-                            13: 'a3', 23: 'b3', 33: 'c3', 43: 'd3', 53: 'e3', 63: 'f3', 73: 'g3', 83: 'h3',
-                            12: 'a2', 22: 'b2', 32: 'c2', 42: 'd2', 52: 'e2', 62: 'f2', 72: 'g2', 82: 'h2',
-                            11: 'a1', 21: 'b1', 31: 'c1', 41: 'd1', 51: 'e1', 61: 'f1', 71: 'g1', 81: 'h1',
-
+        """ initializer       """
+        self._boardcoordinates ={
+        'a8': 18, 'b8': 28, 'c8': 38, 'd8': 48, 'e8': 58, 'f8': 68, 'g8': 78, 'h8':88,
+        'a7': 17, 'b7': 27, 'c7': 37, 'd7': 47, 'e7': 57, 'f7': 67, 'g7': 77, 'h7': 87,
+        'a6': 16, 'b6': 26, 'c6': 36, 'd6': 46, 'e6': 56, 'f6': 66, 'g6': 76, 'h6': 86,
+        'a5': 15, 'b5': 25, 'c5': 35, 'd5': 45, 'e5': 55, 'f5': 65, 'g5': 75, 'h5': 85,
+        'a4': 14, 'b4': 24, 'c4': 34, 'd4': 44, 'e4': 54, 'f4': 64, 'g4': 74, 'h4': 84,
+        'a3': 13, 'b3': 23, 'c3': 33, 'd3': 43, 'e3': 53, 'f3': 63, 'g3': 73, 'h3': 83,
+        'a2': 12, 'b2': 22, 'c2': 32, 'd2': 42, 'e2': 52, 'f2': 62, 'g2': 72, 'h2': 82,
+        'a1': 11, 'b1': 21, 'c1': 31, 'd1': 41, 'e1': 51, 'f1': 61, 'g1': 71, 'h1': 81
         }
-        self.game_board = {
-                            'a8': '.', 'b8': '.', 'c8': '.', 'd8': '.', 'e8': '.', 'f8': '.', 'g8': '.', 'h8': '.',
-                            'a7': '.', 'b7': '.', 'c7': '.', 'd7': '.', 'e7': '.', 'f7': '.', 'g7': '.', 'h7': '.',
-                            'a6': '.', 'b6': '.', 'c6': '.', 'd6': '.', 'e6': '.', 'f6': '.', 'g6': '.', 'h6': '.',
-                            'a5': '.', 'b5': '.', 'c5': '.', 'd5': '.', 'e5': '.', 'f5': '.', 'g5': '.', 'h5': '.',
-                            'a4': '.', 'b4': '.', 'c4': '.', 'd4': '.', 'e4': '.', 'f4': '.', 'g4': '.', 'h4': '.',
-                            'a3': '.', 'b3': '.', 'c3': '.', 'd3': '.', 'e3': '.', 'f3': '.', 'g3': '.', 'h3': '.',
-                            'a2': '.', 'b2': '.', 'c2': '.', 'd2': '.', 'e2': '.', 'f2': '.', 'g2': '.', 'h2': '.',
-                            'a1': '.', 'b1': '.', 'c1': '.', 'd1': '.', 'e1': '.', 'f1': '.', 'g1': '.', 'h1': '.'
-                            }
-        self.active_pieces = []
-        self.game_history = []
-        self.moving_team = 1
+        
 
+        self._active_board ={
+        18:'.', 28: '.', 38: '.', 48: '.', 58: '.', 68:'.', 78:'.', 88:'.',
+        17:'.', 27: '.', 37: '.', 47: '.', 57: '.', 67:'.', 77:'.', 87:'.',
+        16:'.', 26: '.', 36: '.', 46: '.', 56: '.', 66:'.', 76:'.', 86:'.',
+        15:'.', 25: '.', 35: '.', 45: '.', 55: '.', 65:'.', 75:'.', 85:'.',
+        14:'.', 24: '.', 34: '.', 44: '.', 54: '.', 64:'.', 74:'.', 84:'.',
+        13:'.', 23: '.', 33: '.', 43: '.', 53: '.', 63:'.', 73:'.', 83:'.',
+        12:'.', 22: '.', 32: '.', 42: '.', 52: '.', 62:'.', 72:'.', 82:'.',
+        11:'.', 21: '.', 31: '.', 41: '.', 51: '.', 61:'.', 71:'.', 81:'.'
+        }
+        
+        # will hold pieces of piece type
+        self._pieces = []
+
+        self._game_history = []
+        self._moving_team = 1
+    
+    
     def reset_game(self):
-        self.active_pieces = []
-        self.moving_team = 1
-        self.game_board = {
-            'a8': '.', 'b8': '.', 'c8': '.', 'd8': '.', 'e8': '.', 'f8': '.', 'g8': '.', 'h8': '.',
-            'a7': '.', 'b7': '.', 'c7': '.', 'd7': '.', 'e7': '.', 'f7': '.', 'g7': '.', 'h7': '.',
-            'a6': '.', 'b6': '.', 'c6': '.', 'd6': '.', 'e6': '.', 'f6': '.', 'g6': '.', 'h6': '.',
-            'a5': '.', 'b5': '.', 'c5': '.', 'd5': '.', 'e5': '.', 'f5': '.', 'g5': '.', 'h5': '.',
-            'a4': '.', 'b4': '.', 'c4': '.', 'd4': '.', 'e4': '.', 'f4': '.', 'g4': '.', 'h4': '.',
-            'a3': '.', 'b3': '.', 'c3': '.', 'd3': '.', 'e3': '.', 'f3': '.', 'g3': '.', 'h3': '.',
-            'a2': '.', 'b2': '.', 'c2': '.', 'd2': '.', 'e2': '.', 'f2': '.', 'g2': '.', 'h2': '.',
-            'a1': '.', 'b1': '.', 'c1': '.', 'd1': '.', 'e1': '.', 'f1': '.', 'g1': '.', 'h1': '.'
+        self._pieces = []
+        self._moving_team = 1
+        self._active_board ={
+        18:'.', 28: '.', 38: '.', 48: '.', 58: '.', 68:'.', 78:'.', 88:'.',
+        17:'.', 27: '.', 37: '.', 47: '.', 57: '.', 67:'.', 77:'.', 87:'.',
+        16:'.', 26: '.', 36: '.', 46: '.', 56: '.', 66:'.', 76:'.', 86:'.',
+        15:'.', 25: '.', 35: '.', 45: '.', 55: '.', 65:'.', 75:'.', 85:'.',
+        14:'.', 24: '.', 34: '.', 44: '.', 54: '.', 64:'.', 74:'.', 84:'.',
+        13:'.', 23: '.', 33: '.', 43: '.', 53: '.', 63:'.', 73:'.', 83:'.',
+        12:'.', 22: '.', 32: '.', 42: '.', 52: '.', 62:'.', 72:'.', 82:'.',
+        11:'.', 21: '.', 31: '.', 41: '.', 51: '.', 61:'.', 71:'.', 81:'.'
         }
-        self.generate_pieces()
+        self.get_start_pieces()
         self.set_pieces()
         print("NEW GAME!")
-        return
-
-    def get_moving_team(self):
-        return self.moving_team
+        return 
 
     def update_moving_team(self):
-        self.moving_team += 1
+        self._moving_team += 1
         return
-
+    
     def get_moving_team_color(self):
-        if self.moving_team % 2 == 0:
+        if self._moving_team % 2 == 0:
             return "black"
-
-        if self.moving_team % 2 == 1:
+        
+        if self._moving_team % 2 == 1:
             return "white"
 
-    def king_normal_range(self, alphanum):
-        #king_normal_options = []
-        #+1, +11, +10, +9, -1, -11, -10, -9
-        pass
-
-    def squares_attacked_by_team(self, team):
-        pass
-
-    def pawn_forward_range(self, alphanum):
-        pawn_up_range = []
-        pawn = self.get_occupant_by_alphanum(alphanum)
-        pawn_reference_location = self.get_num_by_alphanum(alphanum)
-        team = pawn.get_team()
-
-        if team == 'black':
-            if pawn_reference_location%10==7:
-                one_square_num_destination = pawn_reference_location - 1
-                two_square_num_destination = pawn_reference_location - 2
-                one_square_occupant = self.get_occupant_by_num(one_square_num_destination)
-                two_square_occupant = self.get_occupant_by_num(two_square_num_destination)
-                if one_square_occupant == '.':
-                    first_square = self.get_alphanum_by_num(one_square_num_destination)
-                    pawn_up_range.append(first_square)
-                    if two_square_occupant == '.':
-                        second_square = self.get_alphanum_by_num(two_square_num_destination)
-                        pawn_up_range.append(second_square)
-
-        if team == 'white':
-            if pawn_reference_location % 10 == 2:
-                one_square_num_destination = pawn_reference_location + 1
-                two_square_num_destination = pawn_reference_location + 2
-                one_square_occupant = self.get_occupant_by_num(one_square_num_destination)
-                two_square_occupant = self.get_occupant_by_num(two_square_num_destination)
-                if one_square_occupant == '.':
-                    first_square = self.get_alphanum_by_num(one_square_num_destination)
-                    pawn_up_range.append(first_square)
-                    if two_square_occupant == '.':
-                        second_square = self.get_alphanum_by_num(two_square_num_destination)
-                        pawn_up_range.append(second_square)
-
-        return pawn_up_range
-
-    def pawn_direct_capture_range(self, alphanum):
-        pawn_direct_captures = []
-        pawn = self.get_occupant_by_alphanum(alphanum)
-        pawn_num_location = self.get_num_by_alphanum(alphanum)
-        team = pawn.get_team()
-        if team == 'black':
-            if self.num_square_on_reference_board_num(pawn_num_location-11):
-                target_one = self.get_occupant_by_num(pawn_num_location-11)
-                if target_one != '.':
-                    if target_one.get_team() != team:
-                        capture_square = self.get_alphanum_by_num(pawn_num_location-11)
-                        pawn_direct_captures.append(capture_square)
-
-            if self.num_square_on_reference_board_num(pawn_num_location+9):
-                target_two = self.get_occupant_by_num(pawn_num_location+9)
-                if target_two != '.':
-                    if target_two.get_team() != team:
-                        capture_square = self.get_alphanum_by_num(pawn_num_location+9)
-                        pawn_direct_captures.append(capture_square)
-
-        if team == 'white':
-            if self.num_square_on_reference_board_num(pawn_num_location + 11):
-                target_one = self.get_occupant_by_num(pawn_num_location + 11)
-                if target_one != '.':
-                    if target_one.get_team() != team:
-                        capture_square = self.get_alphanum_by_num(pawn_num_location + 11)
-                        pawn_direct_captures.append(capture_square)
-
-            if self.num_square_on_reference_board_num(pawn_num_location - 9):
-                target_two = self.get_occupant_by_num(pawn_num_location - 9)
-                if target_two != '.':
-                    if target_two.get_team() != team:
-                        capture_square = self.get_alphanum_by_num(pawn_num_location - 9)
-                        pawn_direct_captures.append(capture_square)
-
-        return pawn_direct_captures
-
-    def get_upper_numeric_limit(self, num):
-        string_num_square = str(num)
-        tens = string_num_square[0]
-        ones_limit = '8'
-        edge = int(tens + ones_limit)
-        return edge
-
-    def get_bottom_numeric_limit(self, num):
-        string_num_square = str(num)
-        tens = string_num_square[0]
-        ones_limit = '1'
-        edge = int(tens + ones_limit)
-        return edge
-
-    def get_right_numeric_limit(self, num):
-        string_num_square = str(num)
-        ones = string_num_square[1]
-        tens_right_limit = '8'
-        edge = int(tens_right_limit + ones)
-        return edge
-
-    def get_left_numeric_limit(self, num):
-        string_num_square = str(num)
-        ones = string_num_square[1]
-        tens_left_limit = '1'
-        edge = int(tens_left_limit + ones)
-        return edge
-
-    def bishop_queen_up_right_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
-        bq_up_right_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        current_num = origin + 11
-        while self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                bq_up_right_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                bq_up_right_range.append(square)
-                return bq_up_right_range
-            else:
-                return bq_up_right_range
-
-            current_num += 11
-
-        return bq_up_right_range
-
-    def bishop_queen_down_left_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
-        bq_down_left_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        current_num = origin - 11
-        while self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                bq_down_left_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                bq_down_left_range.append(square)
-                return bq_down_left_range
-            else:
-                return bq_down_left_range
-
-            current_num -= 11
-
-        return bq_down_left_range
-
-    def bishop_queen_up_left_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
-        bq_up_left_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        current_num = origin - 9
-        while self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                bq_up_left_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                bq_up_left_range.append(square)
-                return bq_up_left_range
-            else:
-                return bq_up_left_range
-
-            current_num -= 9
-
-        return bq_up_left_range
-
-    def bishop_queen_down_right_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
-        bq_down_right_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        current_num = origin + 9
-        while self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                bq_down_right_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                bq_down_right_range.append(square)
-                return bq_down_right_range
-            else:
-                return bq_down_right_range
-
-            current_num += 9
-
-        return bq_down_right_range
-
-    def rook_queen_up_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
+    def rook_queen_up_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
         rq_up_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        upper_edge = self.get_upper_numeric_limit(origin)
-        current_num = origin + 1
-        while current_num <= upper_edge and self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                rq_up_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                rq_up_range.append(square)
-                return rq_up_range
-            else:
-                return rq_up_range
+        numeric = int(self._boardcoordinates[start_square])+1
+        while ((numeric%10) < 9):
+            alpha= self.get_alphanumeric_by_numeric(numeric)
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
 
-            current_num += 1
+                if candidate.get_team()==moving_team:
+                    return rq_up_range
+
+                else:
+                    rq_up_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return rq_up_range
+            else:
+                rq_up_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric += 1
 
         return rq_up_range
 
-    def rook_queen_down_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
+    def rook_queen_down_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
         rq_down_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        bottom_edge = self.get_bottom_numeric_limit(origin)
-        current_num = origin - 1
-        while (current_num >= bottom_edge) and (self.num_square_on_reference_board_num(current_num)):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                rq_down_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                rq_down_range.append(square)
-                return rq_down_range
-            else:
-                return rq_down_range
+        numeric = int(self._boardcoordinates[start_square])-1
+        while ((numeric%10)>0):
+            alpha= self.get_alphanumeric_by_numeric(numeric)
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
 
-            current_num -= 1
+                if candidate.get_team()==moving_team:
+                    return rq_down_range
+
+                else:
+                    rq_down_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return rq_down_range
+            else:
+                rq_down_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric -= 1
 
         return rq_down_range
 
-    def rook_queen_right_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
-        rq_right_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        right_edge = self.get_right_numeric_limit(origin)
-        current_num = origin + 10
-        while current_num <= right_edge and self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                rq_right_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                rq_right_range.append(square)
-                return rq_right_range
-            else:
-                return rq_right_range
-
-            current_num += 10
-
-        return rq_right_range
-
-    def rook_queen_left_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
+    def rook_queen_left_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
         rq_left_range = []
-        origin = self.get_num_by_alphanum(alphanum)
-        left_edge = self.get_left_numeric_limit(origin)
-        current_num = origin - 10
-        while current_num >= left_edge and self.num_square_on_reference_board_num(current_num):
-            square = self.get_alphanum_by_num(current_num)
-            occupant = self.game_board[square]
-            if occupant == '.':
-                rq_left_range.append(square)
-            elif occupant.get_team() != moving_piece.get_team():
-                rq_left_range.append(square)
-                return rq_left_range
-            else:
-                return rq_left_range
+        numeric = int(self._boardcoordinates[start_square])-10
+        while (numeric > 10 ):
+            alpha = self.get_alphanumeric_by_numeric(numeric)
 
-            current_num -= 10
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
+
+                if candidate.get_team()==moving_team:
+                    return rq_left_range
+
+                else:
+                    rq_left_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return rq_left_range
+            else:
+                rq_left_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric -= 10
 
         return rq_left_range
 
-    def knight_range(self, alphanum):
-        moving_piece = self.get_occupant_by_alphanum(alphanum)
-        n_range = []
-        current_num = self.get_num_by_alphanum(alphanum)
-        default_octopus_nums = [(current_num+12), (current_num+21), (current_num+19), (current_num + 8),
-                                (current_num-12), (current_num-21), (current_num-19), (current_num-8)]
+    def coordinate_is_on_board(self, coord):
+        valid_numerics = list(self._active_board.keys())
+        for valid_coord in valid_numerics:
+            if valid_coord == coord:
+                return True
+        return False
 
-        for option in default_octopus_nums:
-            if self.num_square_on_reference_board_num(option):
-                if self.get_occupant_by_num(option) == '.':
-                    alphanum = self.get_alphanum_by_num(option)
-                    n_range.append(alphanum)
+
+    def rook_queen_right_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
+        rq_right_range = []
+        numeric = int(self._boardcoordinates[start_square])+10
+        while (numeric < 89 ):
+            alpha = self.get_alphanumeric_by_numeric(numeric)
+
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
+
+                if candidate.get_team()==moving_team:
+                    return rq_right_range
 
                 else:
-                    destination_occupant = self.get_occupant_by_num(option)
-                    if destination_occupant.get_team() != moving_piece.get_team():
-                        alphanum = self.get_alphanum_by_num(option)
-                        n_range.append(alphanum)
+                    rq_right_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return rq_right_range
+            else:
+                rq_right_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric += 10
 
-        return n_range
+        return rq_right_range
 
-    def square_on_board_alphanum(self, square):
-        """determines whether a given square coordinate is on the game_board"""
-        for key in self.game_board.keys():
-            if key == square:
+    def bishop_queen_up_right_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
+        bq_up_right_range = []
+        numeric = int(self._boardcoordinates[start_square])+11
+        if self.coordinate_is_on_board(numeric) is False:
+            return bq_up_right_range
+        alpha = self.get_alphanumeric_by_numeric(numeric)
+        while self.square_is_on_board(alpha):
+            alpha = self.get_alphanumeric_by_numeric(numeric)
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
+
+                if candidate.get_team()==moving_team:
+                    return bq_up_right_range
+                else:
+                    bq_up_right_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return bq_up_right_range
+            else:
+                bq_up_right_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric += 11
+                if self.coordinate_is_on_board(numeric) is False:
+                    return bq_up_right_range
+                else:
+                    alpha= self.get_alphanumeric_by_numeric(numeric)
+
+        return bq_up_right_range
+
+    def bishop_queen_up_left_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
+        bq_up_left_range = []
+        numeric = int(self._boardcoordinates[start_square])-9
+        if self.coordinate_is_on_board(numeric) is False:
+            return bq_up_left_range
+        alpha = self.get_alphanumeric_by_numeric(numeric)
+        while self.square_is_on_board(alpha):
+            alpha = self.get_alphanumeric_by_numeric(numeric)
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
+
+                if candidate.get_team()==moving_team:
+                    return bq_up_left_range
+                else:
+                    bq_up_left_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return bq_up_left_range
+            else:
+                bq_up_left_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric -= 9
+                if self.coordinate_is_on_board(numeric) is False:
+                    return bq_up_left_range
+                else:
+                    alpha= self.get_alphanumeric_by_numeric(numeric)
+                
+        return bq_up_left_range
+
+    def bishop_queen_down_left_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
+        bq_down_left_range = []
+        numeric = int(self._boardcoordinates[start_square])-11
+        if self.coordinate_is_on_board(numeric) is False:
+            return bq_down_left_range
+        alpha = self.get_alphanumeric_by_numeric(numeric)
+        while self.square_is_on_board(alpha):
+            alpha = self.get_alphanumeric_by_numeric(numeric)
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
+
+                if candidate.get_team()==moving_team:
+                    return bq_down_left_range
+                else:
+                    bq_down_left_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return bq_down_left_range
+            else:
+                bq_down_left_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric -= 11
+                if self.coordinate_is_on_board(numeric) is False:
+                    return bq_down_left_range
+                else:
+                    alpha= self.get_alphanumeric_by_numeric(numeric)
+                
+        return bq_down_left_range
+
+    def bishop_queen_down_right_range(self, start_square):
+        moving_piece = self.get_piece_on_square(start_square)
+        moving_team = moving_piece.get_team()
+        bq_down_right_range = []
+        numeric = int(self._boardcoordinates[start_square])+9
+        if self.coordinate_is_on_board(numeric) is False:
+            return bq_down_right_range
+        alpha = self.get_alphanumeric_by_numeric(numeric)
+        while self.square_is_on_board(alpha):
+            alpha = self.get_alphanumeric_by_numeric(numeric)
+            if self.is_empty_square(alpha) is False:
+                candidate = self.piece_by_numeric(numeric)
+
+                if candidate.get_team()==moving_team:
+                    return bq_down_right_range
+                else:
+                    bq_down_right_range.append(self.get_alphanumeric_by_numeric(numeric))
+                    return bq_down_right_range
+            else:
+                bq_down_right_range.append(self.get_alphanumeric_by_numeric(numeric))
+                numeric += 9
+                if self.coordinate_is_on_board(numeric) is False:
+                    return bq_down_right_range
+                else:
+                    alpha= self.get_alphanumeric_by_numeric(numeric)
+                
+        return bq_down_right_range
+
+
+    def square_is_on_board(self, coord):
+        list_of_squares = self._boardcoordinates.keys()
+        for square in list_of_squares:
+            if square == coord:
                 return True
         return False
 
-    def num_square_on_reference_board_num(self, num):
-        """determines whether a given number is a key on the reference_board"""
-        for key in self.reference_board.keys():
-            if key == num:
-                return True
-        return False
 
-    def get_alphanum_by_num(self, num):
-        return self.reference_board[num]
-
-    def get_num_by_alphanum(self, alphanum):
-        for key in self.reference_board.keys():
-            if self.reference_board[key] == alphanum:
-                return key
-
-    def get_occupant_by_alphanum(self, square):
-        return self.game_board[square]
-
-    def get_occupant_by_num(self, num):
-        square = self.reference_board[num]
-        return self.get_occupant_by_alphanum(square)
-
-    def set_square_occupant(self, square, occupant):
-        self.game_board[square] = occupant
-        return
-
-    def move_piece(self, origin, destination):
-        occupant = self.get_occupant_by_alphanum(destination)
-        moving_piece = self.get_occupant_by_alphanum(origin)
-        if occupant == '.':
-            self.set_square_occupant(destination, moving_piece)
-            self.set_square_occupant(origin, '.')
-            moving_piece.set_square(destination)
-            return
-
-        elif occupant.get_team() == moving_piece.get_team():
-            print("Can't capture a piece of the same color!")
-            return
+    def move_is_on_board(self, coord1, coord2):
+        if self.square_is_on_board(coord1) and self.square_is_on_board(coord2):
+            return True
         else:
-            occupant.set_square(None)
-            self.set_square_occupant(destination, moving_piece)
-            self.set_square_occupant(origin, '.')
-            self.active_pieces.remove(occupant)
-        return
+            if self.square_is_on_board(coord1) is False:
+                print(f"{coord1} is not a valid square.  (file must be a-g and rank must be 1-8)")
+            if self.square_is_on_board(coord2) is False:
+                print(f"{coord2} is not a valid square.  (file must be a-g and rank must be 1-8)")
+            return False
 
-    def occupant_is_piece_by_alphanum(self, alphanum):
-        occupant = self.get_occupant_by_alphanum(alphanum)
-        if occupant != "." and occupant is not None:
+    def is_empty_square(self, alphanumeric):
+        if self.get_piece_on_square(alphanumeric) == '.':
             return True
         else:
             return False
 
-    def occupant_is_piece_by_num(self, num):
-        square = self.game_board[num]
-        occupant_is_piece = self.occupant_is_piece_alphanum(square)
-        if occupant_is_piece:
-            return True
+    def get_numeric_boardcoord(self, alphanumeric):
+        numeric_boardcoord = self._boardcoordinates[alphanumeric]
+        return numeric_boardcoord
+
+    def get_piece_on_square(self, square):
+        numeric_location = self.get_numeric_boardcoord(square)
+        piece_on_square = self._active_board[numeric_location]
+        return piece_on_square
+
+    def piece_by_numeric(self, number):
+        """used for internal cases when dealing already with numeric values needing to reference square occupant"""
+        numeric_location = number
+        piece = self._active_board[numeric_location]
+        return piece
+
+    def get_alphanumeric_by_numeric(self, numeric):
+        keys_are = list(self._boardcoordinates.keys())
+        values_are = list(self._boardcoordinates.values())
+        return list(keys_are)[list(values_are).index(numeric)]
+
+    def update_square(self, square, occupant):
+        numeric_square = self.get_numeric_boardcoord(square)
+        self._active_board[numeric_square] = occupant
+
+
+    def move_piece(self, from_coord, to_coord):
+        """method that takes a reference to a piece by the coordinate it is on, as well as a reference
+        to the coordinate it should move to, and then moves the piece to that coordinate."""
+
+        moving_piece = self.get_piece_on_square(from_coord)
+        current_occupant = self.get_piece_on_square(to_coord)
+        if (current_occupant == '.'):
+            moving_piece.set_square(to_coord)
+            self.update_square(to_coord, moving_piece)
+            self.update_square(from_coord, '.')
+            return
+
+        if current_occupant.get_team() != moving_piece.get_team():
+            captured_piece = self.get_piece_on_square(to_coord)
+            captured_piece.set_square(None)
+            self._pieces.remove(current_occupant)
+            moving_piece.set_square(to_coord)
+            self.update_square(to_coord, moving_piece)
+            self.update_square(from_coord, '.')
+            return
+        
         else:
-            return False
+            print("You can't capture your own piece!")
+            return 
+        
 
-    def generate_pieces(self):
-        # black pieces
-        br1 = Piece('R', 'black', 'a8')
-        br2 = Piece('R', 'black', 'h8')
-        bn1 = Piece('N', 'black', 'b8')
-        bn2 = Piece('N', 'black', 'g8')
-        bb1 = Piece('B', 'black', 'c8')
-        bb2 = Piece('B', 'black', 'f8')
-        bk = Piece('K', 'black', 'e8')
-        bq = Piece('Q', 'black', 'd8')
-        bp1 = Piece('p', 'black', 'a7')
-        bp2 = Piece('p', 'black', 'b7')
-        bp3 = Piece('p', 'black', 'c7')
-        bp4 = Piece('p', 'black', 'd7')
-        bp5 = Piece('p', 'black', 'e7')
-        bp6 = Piece('p', 'black', 'f7')
-        bp7 = Piece('p', 'black', 'g7')
-        bp8 = Piece('p', 'black', 'h7')
-        # white pieces
-        wr1 = Piece('R', 'white', 'a1')
-        wr2 = Piece('R', 'white', 'h1')
-        wn1 = Piece('N', 'white', 'b1')
-        wn2 = Piece('N', 'white', 'g1')
-        wb1 = Piece('B', 'white', 'c1')
-        wb2 = Piece('B', 'white', 'f1')
-        wk = Piece('K', 'white', 'e1')
-        wq = Piece('Q', 'white', 'd1')
-        wp1 = Piece('p', 'white', 'a2')
-        wp2 = Piece('p', 'white', 'b2')
-        wp3 = Piece('p', 'white', 'c2')
-        wp4 = Piece('p', 'white', 'd2')
-        wp5 = Piece('p', 'white', 'e2')
-        wp6 = Piece('p', 'white', 'f2')
-        wp7 = Piece('p', 'white', 'g2')
-        wp8 = Piece('p', 'white', 'h2')
-        list_of_generated_pieces = [
-            br1, br2, bn1, bn2, bb1, bb2, bk, bq, bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8,
-            wr1, wr2, wn1, wn2, wb1, wb2, wk, wq, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8]
-        for piece in list_of_generated_pieces:
-            self.active_pieces.append(piece)
-        return
-
-    def get_active_pieces(self):
-        active_pieces = self.active_pieces
-        return active_pieces
-
-    def get_opponent_active_pieces_by_moving_team(self, moving_team):
-        opponent_active_pieces = []
-        active_pieces = self.get_active_pieces()
-        for piece in active_pieces:
-            if piece.get_team() != moving_team:
-                opponent_active_pieces.append(piece)
-
-        return opponent_active_pieces
-
-    def get_opponent_active_pieces_by_moving_team(self, moving_team):
-        opponent_active_pieces = []
-        active_pieces = self.get_active_pieces()
-        for piece in active_pieces:
-            if piece.get_team() != moving_team:
-                opponent_active_pieces.append(piece)
-        return opponent_active_pieces
-
-
-    def get_opponent_moves_by_moving_team(self, moving_team):
-        opponent_moves = []
-        opponents = self.get_opponent_active_pieces_by_moving_team(moving_team)
-        for opponent in opponents:
-            if opponent.get_piece_type() == 'Q':
-                square = opponent.get_square()
-                queen_options = self.get_queen_current_options(square)
-                for option in queen_options:
-                    opponent_moves.append(option)
-            if opponent.get_piece_type() == 'R':
-                square = opponent.get_square()
-                rook_options = self.get_rook_current_options(square)
-                for option in rook_options:
-                    opponent_moves.append(option)
-            if opponent.get_piece_type() == 'B':
-                square = opponent.get_square()
-                bishop_options = self.get_bishop_current_options(square)
-                for option in bishop_options:
-                    opponent_moves.append(option)
-            if opponent.get_piece_type() == 'N':
-                square = opponent.get_square()
-                knight_options = self.get_knight_current_options(square)
-                for option in knight_options:
-                    opponent_moves.append(option)
-
-            if opponent.get_piece_type() == 'p':
-                square = opponent.get_square()
-                pawn_options = self.get_pawn_current_options(square)
-                for option in pawn_options:
-                    opponent_moves.append(option)
-
-            return opponent_moves
-
-    def set_pieces(self):
-        for piece in self.active_pieces:
-            square = piece.get_square()
-            self.set_square_occupant(square, piece)
-        return
 
     def print_board(self):
-        counter = 1
-        for key in self.game_board.keys():
-            occupant = self.game_board[key]
-            if counter % 8 == 0:
-                if occupant == '.':
-                    print(f"{occupant}\n")
-                    counter += 1
+        """a method that prints the current state of the board to the screen"""
+        
+        total_placed = 1
+        for square in self._active_board:
+            if total_placed %8 == 0:
+                if self._active_board[square]=='.':
+                    print(f"{self._active_board[square]}")
+                
 
-                if occupant != '.':
-                    piece = occupant.get_piece_type()
-                    print(piece)
-                    counter +=1
+                else:
+                    piece = self._active_board[square]
+                    piece_print_val = piece.get_shape()
+                    print(f"{piece_print_val}")
 
+                total_placed += 1
+                
             else:
-                if occupant == '.':
-                    print(f"{occupant}", end="   ")
-                    counter += 1
+                if self._active_board[square]=='.':
+                    print(f"{self._active_board[square]}", end="   ")
+                
 
-                if occupant != '.':
-                    piece = occupant.get_piece_type()
-                    print(f"{piece}", end="   ")
-                    counter += 1
+                else:
+                    piece = self._active_board[square]
+                    piece_print_val = piece.get_shape()
+                    print(f"{piece_print_val}", end="   ")
+                    
+                total_placed += 1
 
-        return
 
-    def get_rook_current_options(self, origin):
+        
+
+    def get_start_pieces(self):
+        # black and white pawns
+        bp1 = Piece('a7', 'p', 'black')
+        bp2 = Piece('b7', 'p', 'black')
+        bp3 = Piece('c7', 'p', 'black')
+        bp4 = Piece('d7', 'p', 'black')
+        bp5 = Piece('e7', 'p', 'black')
+        bp6 = Piece('f7', 'p', 'black')
+        bp7 = Piece('g7', 'p', 'black')
+        bp8 = Piece('h7', 'p', 'black')
+        wp1 = Piece('a2', 'p', 'white')
+        wp2 = Piece('b2', 'p', 'white')
+        wp3 = Piece('c2', 'p', 'white')
+        wp4 = Piece('d2', 'p', 'white')
+        wp5 = Piece('e2', 'p', 'white')
+        wp6 = Piece('f2', 'p', 'white')
+        wp7 = Piece('g2', 'p', 'white')
+        wp8 = Piece('h2', 'p', 'white')
+
+        # black pieces
+        bR1 = Piece('a8', 'R', 'black')
+        bR2 = Piece('h8', 'R', 'black')
+        bN1 = Piece('b8', 'N', 'black')
+        bN2 = Piece('g8', 'N', 'black')
+        bB1 = Piece('c8', 'B', 'black')
+        bB2 = Piece('f8', 'B', 'black')
+        bK1 = Piece('e8', 'K', 'black')
+        bQ1 = Piece('d8', 'Q', 'black')
+
+        # white  pieces
+        wR1 = Piece('a1', 'R', 'white')
+        wR2 = Piece('h1', 'R', 'white')
+        wN1 = Piece('b1', 'N', 'white')
+        wN2 = Piece('g1', 'N', 'white')
+        wB1 = Piece('c1', 'B', 'white')
+        wB2 = Piece('f1', 'B', 'white')             
+        wK1 = Piece('e1', 'K', 'white')
+        wQ1 = Piece('d1', 'Q', 'white')
+
+
+        # get all pieces stored in official game array
+        all_pieces = [bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, bR1, bR2, bN1, bN2, bB1, bB2, bK1, bQ1, wR1, wR2, wN1, wN2, wB1, wB2, wK1, wQ1]
+        for this_piece in all_pieces:
+            self._pieces.append(this_piece)
+
+        for piece in self._pieces:
+            for coord in self._boardcoordinates:
+                if piece.get_square() == coord:
+                    print(f"{piece.get_square()} = {self._boardcoordinates[coord]}")
+
+    def set_pieces(self):
+        """A method to to take all pieces in the self._pieces array and place them on the board"""
+
+        #for piece in self._pieces:
+        #    for coord in self._boardcoordinates:
+        #        if piece.get_square() == coord:
+        #            set_piece_at = int(self._boardcoordinates[coord])
+        #            self._active_board[set_piece_at] = piece.get_shape()
+        for piece in self._pieces:
+            location = piece.get_square()
+            self.update_square(location, piece)
+
+    
+    def queen_options_this_turn(self, queen_pos):
         current_options = []
-        u =  self.rook_queen_up_range(origin)
-        d =  self.rook_queen_down_range(origin)
-        r =  self.rook_queen_right_range(origin)
-        l =  self.rook_queen_left_range(origin)
-        all_options_lists = [u, d, r, l]
-        for options_list in all_options_lists:
-            for option in options_list:
-                current_options.append(option)
-        return current_options
-
-    def get_queen_current_options(self, origin):
-        current_options = []
-        ur = self.bishop_queen_up_right_range(origin)
-        ul = self.bishop_queen_up_left_range(origin)
-        dr = self.bishop_queen_down_right_range(origin)
-        dl = self.bishop_queen_down_left_range(origin)
-        u = self.rook_queen_up_range(origin)
-        d = self.rook_queen_down_range(origin)
-        r = self.rook_queen_right_range(origin)
-        l = self.rook_queen_left_range(origin)
+        ur = self.bishop_queen_up_right_range(queen_pos)
+        ul = self.bishop_queen_up_left_range(queen_pos)
+        dr = self.bishop_queen_down_right_range(queen_pos)
+        dl = self.bishop_queen_down_left_range(queen_pos)
+        u =  self.rook_queen_up_range(queen_pos)
+        d =  self.rook_queen_down_range(queen_pos)
+        r =  self.rook_queen_right_range(queen_pos)
+        l =  self.rook_queen_left_range(queen_pos)
         all_options_lists = [ur, ul, dr, dl, u, d, r, l]
         for options_list in all_options_lists:
             for option in options_list:
                 current_options.append(option)
-        return current_options
+        return current_options 
 
-    def get_pawn_current_options(self, origin):
+    def pawn_options_this_turn(self, pawn_pos):
         current_options = []
 
-        capture_options = self.pawn_direct_capture_range(origin)
-        for option in capture_options:
+        captures = self.pawn_oblique_options(pawn_pos)
+        for option in captures:
             current_options.append(option)
 
-        forward_options = self.pawn_forward_range(origin)
-        for option in forward_options:
+        forwards = self.pawn_forward_range(pawn_pos)
+        for option in forwards:
             current_options.append(option)
-
+        
         return current_options
+        
 
-    def get_bishop_current_options(self, origin):
+    def pawn_oblique_options(self, square):
+        pawn_diags = []
+        moving_piece = self.get_piece_on_square(square)
+        if moving_piece.get_team() == 'white':
+            current_coord = self.get_numeric_boardcoord(square)
+            diag_left_coord = current_coord-9
+            if self.coordinate_is_on_board(diag_left_coord):
+                diag_left_piece = self.piece_by_numeric(diag_left_coord)
+                if diag_left_piece != '.':
+                    if diag_left_piece.get_team()=='black':
+                        left_black_target = diag_left_piece.get_square()
+                        pawn_diags.append(left_black_target)
+
+            diag_right_coord = current_coord+11
+            if self.coordinate_is_on_board(diag_right_coord):
+                diag_right_piece = self.piece_by_numeric(diag_right_coord)            
+                if diag_right_piece != '.':
+                    if diag_right_piece.get_team()=='black':
+                        right_black_target = diag_right_piece.get_square()
+                        pawn_diags.append(right_black_target)
+            return pawn_diags
+
+        if moving_piece.get_team() == 'black':
+            current_coord = self.get_numeric_boardcoord(square)
+            diag_left_coord = current_coord+9
+            if self.coordinate_is_on_board(diag_left_coord):
+                diag_left_piece = self.piece_by_numeric(diag_left_coord)
+                if diag_left_piece != '.':
+                    if diag_left_piece.get_team()=='white':
+                        left_white_target = diag_left_piece.get_square()
+                        pawn_diags.append(left_white_target)
+
+            diag_right_coord = current_coord-11
+            if self.coordinate_is_on_board(diag_right_coord):
+                diag_right_piece = self.piece_by_numeric(diag_right_coord)            
+                if diag_right_piece != '.':
+                    if diag_right_piece.get_team()=='white':
+                        right_white_target = diag_right_piece.get_square()
+                        pawn_diags.append(right_white_target)
+            return pawn_diags
+
+        return pawn_diags
+
+
+    
+    def pawn_forward_range(self, square):
+        pawn_forward_options = []
+        moving_piece = self.get_piece_on_square(square)
+        if moving_piece.get_team() == 'white':
+            current_coord = self.get_numeric_boardcoord(square)
+            if current_coord%10 == 2:
+                third_rank_coord = current_coord + 1
+                third_rank_piece = self.piece_by_numeric(third_rank_coord)
+                fourth_rank_coord = current_coord + 2
+                fourth_rank_piece = self.piece_by_numeric(fourth_rank_coord)
+                
+                if third_rank_piece == ".":
+                    option = self.get_alphanumeric_by_numeric(third_rank_coord)
+                    pawn_forward_options.append(option)
+            
+                if (third_rank_piece == ".") and (fourth_rank_piece=="."):
+                    option2 = self.get_alphanumeric_by_numeric(fourth_rank_coord)
+                    pawn_forward_options.append(option2)
+                return pawn_forward_options
+            
+            if ((current_coord%10)<=7) and ((current_coord%10)>2):
+                next_rank_coord = current_coord + 1
+                next_rank_piece = self.piece_by_numeric(next_rank_coord)
+                if (next_rank_piece == "."):
+                    forward_option = self.get_alphanumeric_by_numeric(next_rank_coord)
+                    pawn_forward_options.append(forward_option)
+                return pawn_forward_options
+            if (current_coord%10)==8:
+                print("Time to promote this pawn")
+                    
+            return pawn_forward_options
+
+        if moving_piece.get_team() == 'black':
+            current_coord = self.get_numeric_boardcoord(square)
+            if current_coord%10 == 7:
+                sixth_rank_coord = current_coord - 1
+                sixth_rank_piece = self.piece_by_numeric(sixth_rank_coord)
+                fifth_rank_coord = current_coord - 2
+                fifth_rank_piece = self.piece_by_numeric(fifth_rank_coord)
+                
+                if sixth_rank_piece == ".":
+                    option = self.get_alphanumeric_by_numeric(sixth_rank_coord)
+                    pawn_forward_options.append(option)
+            
+                if (sixth_rank_piece == ".") and (fifth_rank_piece=="."):
+                    option2 = self.get_alphanumeric_by_numeric(fifth_rank_coord)
+                    pawn_forward_options.append(option2)
+                return pawn_forward_options
+            
+            if ((current_coord%10)>=2) and ((current_coord%10)<7):
+                next_rank_coord = current_coord - 1
+                next_rank_piece = self.piece_by_numeric(next_rank_coord)
+                if (next_rank_piece == "."):
+                    forward_option = self.get_alphanumeric_by_numeric(next_rank_coord)
+                    pawn_forward_options.append(forward_option)
+                return pawn_forward_options
+            if (current_coord%10)==1:
+                print("Time to promote this pawn")
+                    
+                return pawn_forward_options
+    
+    
+    
+    def rook_options_this_turn(self, rook_pos):
         current_options = []
-        ur = self.bishop_queen_up_right_range(origin)
-        ul = self.bishop_queen_up_left_range(origin)
-        dr = self.bishop_queen_down_right_range(origin)
-        dl = self.bishop_queen_down_left_range(origin)
+        u =  self.rook_queen_up_range(rook_pos)
+        d =  self.rook_queen_down_range(rook_pos)
+        r =  self.rook_queen_right_range(rook_pos)
+        l =  self.rook_queen_left_range(rook_pos)
+        all_options_lists = [u, d, r, l]
+        for options_list in all_options_lists:
+            for option in options_list:
+                current_options.append(option)
+        return current_options 
+
+    def knight_options_this_turn(self, coord):
+        start_coord = self.get_numeric_boardcoord(coord)
+        moving_piece = self.piece_by_numeric(start_coord)
+        oct1 = start_coord + 12
+        oct2 = start_coord + 21
+        oct3 = start_coord + 19
+        oct4 = start_coord + 8
+        oct5 = start_coord - 12
+        oct6 = start_coord - 21
+        oct7 = start_coord - 19
+        oct8 = start_coord - 8
+        valid_moves=[]
+        numeric_range = [oct1, oct2, oct3, oct4, oct5, oct6, oct7, oct8]
+        for numeric_spot in numeric_range:
+            if self.coordinate_is_on_board(numeric_spot):
+                occupant = self.piece_by_numeric(numeric_spot)
+                if occupant == '.':
+                    open_square = self.get_alphanumeric_by_numeric(numeric_spot)
+                    valid_moves.append(open_square)
+                
+                if (occupant!='.') and occupant.get_team() != moving_piece.get_team():
+                    potential_octopus_victim = occupant.get_square()
+                    valid_moves.append(potential_octopus_victim)
+                
+        return valid_moves
+
+    def bishop_options_this_turn(self, bishop_pos):
+        current_options = []
+        ur = self.bishop_queen_up_right_range(bishop_pos)
+        ul = self.bishop_queen_up_left_range(bishop_pos)
+        dr = self.bishop_queen_down_right_range(bishop_pos)
+        dl = self.bishop_queen_down_left_range(bishop_pos)
         all_options_lists = [ur, ul, dr, dl]
         for options_list in all_options_lists:
             for option in options_list:
                 current_options.append(option)
         return current_options
 
-    def get_knight_current_options(self, origin):
-        current_options = self.knight_range(origin)
-        return current_options
+    def get_current_on_boards(self):
+        active_pieces = []
+        for coord in self._active_board:
+            occupant = self.piece_by_numeric(coord)
+            if occupant != '.':
+                active_pieces.append(occupant)
+        return active_pieces
+
+    def king_directionals(self, king_pos):
+        numeric_coord = self.get_numeric_boardcoord(king_pos)
+        side_1 = numeric_coord + 1
+        side_2 = numeric_coord + 11
+        side_3 = numeric_coord + 10
+        side_4 = numeric_coord + 9
+        side_5 = numeric_coord - 1
+        side_6 = numeric_coord - 11
+        side_7 = numeric_coord - 10
+        side_8 = numeric_coord + 9
+        squares_on_board = []
+        list_of_numeric_options = [side_1, side_2, side_3, side_4, side_5, side_6, side_7, side_8]
+        for option in list_of_numeric_options:
+            on_board = self.coordinate_is_on_board(option)
+            if on_board is True:
+                square = self.get_alphanumeric_by_numeric(option)
+                squares_on_board.append(square)
+        return squares_on_board
+
+    def get_opposing_pieces(self, moving_team):
+        all_pieces = self.get_current_on_boards()
+        opposing_pieces = []
+        for piece in all_pieces:
+            if piece.get_team() != moving_team:
+                opposing_pieces.append(piece)
+        return opposing_pieces
+
+    def get_opposing_team_moves(self, moving_team):
+        enemies = self.get_opposing_pieces(moving_team)
+        enemy_options = []
+        for enemy in enemies:
+            if enemy.get_shape() == "Q":
+                queen_options = self.queen_options_this_turn(enemy.get_square())
+                for option in queen_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "R":
+                rook_options = self.rook_options_this_turn(enemy.get_square())
+                for option in rook_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "B":
+                bishop_options = self.bishop_options_this_turn(enemy.get_square())
+                for option in bishop_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "N":
+                knight_options = self.knight_options_this_turn(enemy.get_square())
+                for option in knight_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "p":
+                pawn_options = self.pawn_options_this_turn(enemy.get_square())
+                for option in pawn_options:
+                    enemy_options.append(option)
+
+        return enemy_options
+
+    def get_opposing_team_threats(self, moving_team):
+        enemies = self.get_opposing_pieces(moving_team)
+        enemy_options = []
+        for enemy in enemies:
+            if enemy.get_shape() == "K":
+                king_options = self.king_directionals(enemy.get_square())
+                for option in king_options:
+                    enemy_options.append(option)
+
+            if enemy.get_shape() == "Q":
+                queen_options = self.queen_options_this_turn(enemy.get_square())
+                for option in queen_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "R":
+                rook_options = self.rook_options_this_turn(enemy.get_square())
+                for option in rook_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "B":
+                bishop_options = self.bishop_options_this_turn(enemy.get_square())
+                for option in bishop_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "N":
+                knight_options = self.knight_options_this_turn(enemy.get_square())
+                for option in knight_options:
+                    enemy_options.append(option)
+            if enemy.get_shape() == "p":
+                pawn_options = self.pawn_oblique_options(enemy.get_square())
+                for option in pawn_options:
+                    enemy_options.append(option)
+
+        return enemy_options
+
+    def king_move_is_legal(self, king_start_square, try_square, color):
+        # create a new game
+        hypothetical = ChessGame()
+        # set pieces to original position.  
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        # take list of tuples which is the list of moves  (self._game_history) of the current game
+
+        # iterate through list of moves simply calling to get to current position
+        hypothetical.copy_position(self._game_history)
+        # play the hypothetical king move by calling move_piece King to try_square
+        hypothetical.move_piece(king_start_square, try_square)
+        # check opposing threats.  ***Still need to modify for pawns...only include their kill places***
+        enemy_threats = hypothetical.get_opposing_team_threats(color)
+        # if there is any threat at all return False
+        for threatened_square in enemy_threats:
+            if threatened_square == try_square:
+                return False
+        # Otherwise return true
+        return True
+
+    def in_check(self, color):
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history)
+        if color == 'black':
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            for ally in ally_pieces:
+                # find potentially attacked king
+                if ally.get_shape() == "K":
+                    # look at his enemy's threats after move
+                    enemy_threats = hypothetical.get_opposing_team_threats('black')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            # if a threatened square is the square he's on, return True
+                            return True
+        if color == 'white':
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            for ally in ally_pieces:
+                if ally.get_shape() == "K":
+                    enemy_threats = hypothetical.get_opposing_team_threats('white')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            return True
+
+        # reaching this means not in check
+        return False
+
+    def checkmate_delivered(self, start_square, try_square, color):
+        # get checked position
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history)
+        hypothetical.move_piece(start_square, try_square)
+
+        # pull up checked team's pieces
+        if color == 'black':
+            # black did checking, let's pull up white's allies
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            # iterate through checked team's pieces
+            for ally in ally_pieces:
+                # grab piece's square for reference starting_point
+                starting_point = ally.get_square()
+                # get piece's options
+                if ally.get_shape() == 'K':
+                    potentials = hypothetical.king_directionals(starting_point)
+                    for option in potentials:
+                        if hypothetical.king_move_is_legal(starting_point, option):
+                            # see if still check...if not return False
+                            if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                                return False
+
+                if ally.get_shape()=='Q':
+                    potentials = hypothetical.queen_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+                if ally.get_shape()=='B':
+                    potentials = hypothetical.bishop_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+                if ally.get_shape()=='N':
+                    potentials = hypothetical.knight_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+                if ally.get_shape()=='R':
+                    potentials = hypothetical.rook_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+
+                if ally.get_shape() == 'p':
+                    potentials = hypothetical.pawn_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+
+        if color == 'white':
+            # white did checking, let's pull up black's allies
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            # iterate through checked team's pieces
+            for ally in ally_pieces:
+                # grab piece's square for reference starting_point
+                starting_point = ally.get_square()
+                # get piece's options
+                if ally.get_shape() == 'K':
+                    potentials = hypothetical.king_directionals(starting_point)
+                    for option in potentials:
+                        if hypothetical.king_move_is_legal(starting_point, option):
+                            # see if still check...if not return False
+                            if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                                return False
+
+                if ally.get_shape() == 'Q':
+                    potentials = hypothetical.queen_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+                if ally.get_shape() == 'B':
+                    potentials = hypothetical.bishop_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+                if ally.get_shape() == 'N':
+                    potentials = hypothetical.knight_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+                if ally.get_shape() == 'R':
+                    potentials = hypothetical.rook_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+
+                if ally.get_shape() == 'p':
+                    potentials = hypothetical.pawn_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+
+        # if we get this far, that means there was no saving move...checkmate has been delivered
+        # return True to alert of status
+        return True
+
+    def still_in_check(self, start_square, try_square, color):
+        # generate position on hypothetical board
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history)
+        hypothetical.move_piece(start_square, try_square)
+
+        if color == 'black':
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            for ally in ally_pieces:
+                # find potentially attacked king
+                if ally.get_shape() == "K":
+                    # look at his enemy's threats after move
+                    enemy_threats = hypothetical.get_opposing_team_threats('black')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            # if a threatened square is the square he's on, return True
+                            return True
+
+        if color == 'white':
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            for ally in ally_pieces:
+                if ally.get_shape() == "K":
+                    enemy_threats = hypothetical.get_opposing_team_threats('white')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            return True
+
+        return False
+
+    def checked_opponent(self, start_square, try_square, color):
+        # generate position on hypothetical board
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history)
+        hypothetical.move_piece(start_square, try_square)
+
+        if color == 'black':
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            for ally in ally_pieces:
+                # find potentially attacked king
+                if ally.get_shape() == "K":
+                    # look at his enemy's threats after move
+                    enemy_threats = hypothetical.get_opposing_team_threats('white')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            # if a threatened square is the square he's on, return True
+                            return True
+
+        if color == 'white':
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            for ally in ally_pieces:
+                if ally.get_shape() == "K":
+                    enemy_threats = hypothetical.get_opposing_team_threats('black')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            return True
+
+        return False
+
+    def tuple_move(self, moved_from, moved_to):
+        approved_move = (moved_from, moved_to)
+        return approved_move
+
+    def document_move(self, approved_move):
+        self._game_history.append(approved_move)
+        return 
+
+    def copy_position(self, documented_moves_list):
+        for move in documented_moves_list:
+            moved_from = move[0]
+            moved_to = move[1]
+            this_move = (moved_from, moved_to)
+            self.move_piece(moved_from, moved_to)
+            self._game_history.append(this_move)
+            self.update_moving_team()
+            
+        return 
 
     def play(self, origin, destination):
-        print(f"({self.get_moving_team_color()}'s turn)")
-        # check that origin is on board
-        if self.square_on_board_alphanum(origin) is False:
-            print(f"The square {origin} is not on the board.  Choose a valid square")
-            return
-
-        moving_piece = self.get_occupant_by_alphanum(origin)
-        
-        # check that moving_piece is actually a piece and not an empty square
-        if moving_piece == '.':
-            print(f"There is no piece on {origin}!  Choose a piece to move!")
-            return
+        print(f"({self.get_moving_team_color}'s turn)")
+        moving_piece = self.get_piece_on_square(origin)
 
         # check that turn and color match up
         if moving_piece.get_team() != self.get_moving_team_color():
             print(f"It's not {moving_piece.get_team()}'s turn, it's {self.get_moving_team_color()}'s turn")
+            return 
+        
+        # check that move is on board
+        if self.move_is_on_board(origin, destination) is False:
             return
-
-        # check that the move is on board
-        if self.square_on_board_alphanum(destination) is False:
-            print(f"{destination} is not a valid board square.")
-            return
-
+        
         # make sure that the specific piece is moving to a valid option in the position
-        piece_type = moving_piece.get_piece_type()
-        if piece_type == "Q":
-            queen_moves = self.get_queen_current_options(origin)
-            if destination not in queen_moves:
-                print(f"That is not an option for the {moving_piece.get_team()} queen on {origin}")
+        piece_type = moving_piece.get_shape()
+        if piece_type == "K":
+            legal_king_move = bool(self.king_move_is_legal(origin, destination, self.get_moving_team_color()))
+            if legal_king_move is False:
+                print(f"That is not an option for the {moving_piece.get_team()} king on {origin}")
                 return
+
+        if piece_type == "Q":
+            queen_moves = self.queen_options_this_turn(origin)
+            if destination not in queen_moves:
+                print(f"That is not an option for the {moving_piece.get_team()} piece on {origin}")
+                return 
 
         if piece_type == "R":
-            rook_moves = self.get_rook_current_options(origin)
+            rook_moves = self.rook_options_this_turn(origin)
             if destination not in rook_moves:
-                print(f"That is not an option for the {moving_piece.get_team()} rook on {origin}")
-                return
-
+                print(f"That is not an option for the {moving_piece.get_team()} piece on {origin}")
+                return 
+        
         if piece_type == "N":
-            knight_moves = self.get_knight_current_options(origin)
+            knight_moves = self.knight_options_this_turn(origin)
             if destination not in knight_moves:
-                print(f"That is not an option for the {moving_piece.get_team()} knight on {origin}")
-                return
-
+                print(f"That is not an option for the {moving_piece.get_team()} piece on {origin}")
+                return 
+        
         if piece_type == "B":
-            bishop_moves = self.get_bishop_current_options(origin)
+            bishop_moves = self.bishop_options_this_turn(origin)
             if destination not in bishop_moves:
-                print(f"That is not an option for the {moving_piece.get_team()} bishop on {origin}")
-                return
+                print(f"That is not an option for the {moving_piece.get_team()} piece on {origin}")
+                return 
 
         if piece_type == "p":
-            pawn_moves = self.get_pawn_current_options(origin)
+            pawn_moves = self.pawn_options_this_turn(origin)
             if destination not in pawn_moves:
-                print(f"That is not an option for the {moving_piece.get_team()} pawn on {origin}")
+                print(f"That is not an option for the {moving_piece.get_team()} piece on {origin}")
                 return
 
-                # make move
+        in_check = bool(self.still_in_check(origin, destination, self.get_moving_team_color()))
+
+        if in_check:
+            print(f"Find a move that avoids check!")
+            return
+
+        # check is_check status
+        checked_enemy_on_move = bool(self.checked_opponent(origin, destination, self.get_moving_team_color()))
+        if checked_enemy_on_move:
+            game_over = bool(self.checkmate_delivered(origin, destination, self.get_moving_team_color()))
+            if game_over:
+                self.move_piece(origin, destination)
+                this_move = (origin, destination)
+                self._game_history.append(this_move)
+                self.print_board()
+                print(f"CHECKMATE\nThe {self.get_moving_team_color()} team has won!!")
+                self.reset_game()
+                return
+            else:
+                print(f"CHECK!!")
+        # make move
         self.move_piece(origin, destination)
 
         # store move
         this_move = (origin, destination)
-        self.game_history.append(this_move)
+        self._game_history.append(this_move)
 
         # update moving team
         self.update_moving_team()
 
-        return
+        return 
+
+
+class Piece:
+    """The essential piece data type"""
+    def __init__(self, square, shape, team):
+        self._square = square
+        self._shape = shape
+        self._team = team
+
+    def get_square(self):
+        return self._square
+
+    def set_square(self, new_square):
+        self._square = new_square
+
+    def get_shape(self):
+        return self._shape
+
+    def set_shape(self, new_shape):
+        self._shape = new_shape
+    
+    def get_team(self):
+        return self._team
+    
+    def set_team(self, new_team):
+        self._team = new_team
+
+    
+
+
+     
 
 
 def main():
-    game = Game()
-    game.generate_pieces()
+    """
+    game.print_board()
+    print("\n\n")
+    game.print_board()
+    print("\n\n")
+    game.move_piece('a2', 'a4')
+    print("\n\n")
+    game.move_piece('a7', 'a6')
+    print("\n\n")
+    game.move_piece('a1', 'a3')
+    print("\n\n")
+    game.move_piece('a4', 'a5')
+    print("\n\n")
+    game.move_piece('a3', 'e3')
+    print("\n\n")
+    game.move_piece('h7', 'h6')
+    game.move_piece('e3', 'e7')
+    game.move_piece('d2', 'd5')
+    game.print_board()
+    bishop_options = game.bishop_options_this_turn('d5')
+    rook_options = game.rook_options_this_turn('d5')
+    queen_options = game.queen_options_this_turn('d5')
+
+    print(bishop_options)
+    print("\n")
+    print(rook_options)
+    print("\n")
+    print(queen_options)
+    game.move_piece('f2', 'f4')
+    game.move_piece('g7', 'g5')
+    game.print_board()
+    killer_rook_options = game.rook_options_this_turn('e7')
+    black_g_pawn_options = game.pawn_options_this_turn('g5')
+    white_f_pawn_options = game.pawn_options_this_turn('f4')
+
+    print(killer_rook_options)
+    print(black_g_pawn_options)
+    print(white_f_pawn_options)
+    #up_left = game.bishop_queen_up_left_range('d5')
+    #down_right = game.bishop_queen_down_right_range('d5')
+    #down_left = game.bishop_queen_down_left_range('d5')
+    #print(f"upright range is: {up_right}")
+    #print(f"upleft range is: {up_left}")
+    #print(f"downright range is: {down_right}")
+    #print(f"downleft range is: {down_left}")
+    # """
+
+    game = ChessGame()
+    game.get_start_pieces()
     game.set_pieces()
+
+   
 
     while True:
         print(f"{game.get_moving_team_color()}'s turn!")
@@ -710,13 +1139,18 @@ def main():
             prompt_origin = input("Enter a square to move from:  ")
             prompt_destination = input("Enter a square to move to:  ")
             game.play(prompt_origin, prompt_destination)
-
+            
         if prompt_user_action == 'r':
             game.reset_game()
 
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
 
 
 
