@@ -4,6 +4,8 @@
 #from unicodedata import numeric
 #from modules.colors import Colors
 #c = Colors
+
+
 class ChessGame:
     """This class provides the foundation for two players to engaage in a
     friendly(or not so friendly...) game of command line chess"""
@@ -20,7 +22,6 @@ class ChessGame:
         'a2': 12, 'b2': 22, 'c2': 32, 'd2': 42, 'e2': 52, 'f2': 62, 'g2': 72, 'h2': 82,
         'a1': 11, 'b1': 21, 'c1': 31, 'd1': 41, 'e1': 51, 'f1': 61, 'g1': 71, 'h1': 81
         }
-        
 
         self._active_board ={
         18:'.', 28: '.', 38: '.', 48: '.', 58: '.', 68:'.', 78:'.', 88:'.',
@@ -37,13 +38,13 @@ class ChessGame:
         self._pieces = []
 
         self._game_history = []
+        self._promotion_history = []
         self._moving_team = 1
-    
-    
+
     def reset_game(self):
         self._pieces = []
         self._moving_team = 1
-        self._active_board ={
+        self._active_board = {
         18:'.', 28: '.', 38: '.', 48: '.', 58: '.', 68:'.', 78:'.', 88:'.',
         17:'.', 27: '.', 37: '.', 47: '.', 57: '.', 67:'.', 77:'.', 87:'.',
         16:'.', 26: '.', 36: '.', 46: '.', 56: '.', 66:'.', 76:'.', 86:'.',
@@ -279,7 +280,6 @@ class ChessGame:
                 
         return bq_down_right_range
 
-
     def square_is_on_board(self, coord):
         list_of_squares = self._boardcoordinates.keys()
         for square in list_of_squares:
@@ -287,15 +287,14 @@ class ChessGame:
                 return True
         return False
 
-
     def move_is_on_board(self, coord1, coord2):
         if self.square_is_on_board(coord1) and self.square_is_on_board(coord2):
             return True
         else:
-            if self.square_is_on_board(coord1) is False:
-                print(f"{coord1} is not a valid square.  (file must be a-g and rank must be 1-8)")
-            if self.square_is_on_board(coord2) is False:
-                print(f"{coord2} is not a valid square.  (file must be a-g and rank must be 1-8)")
+            #if self.square_is_on_board(coord1) is False:
+                # print(f"{coord1} is not a valid square.  (file must be a-g and rank must be 1-8)")
+            #if self.square_is_on_board(coord2) is False:
+                # print(f"{coord2} is not a valid square.  (file must be a-g and rank must be 1-8)")
             return False
 
     def is_empty_square(self, alphanumeric):
@@ -328,7 +327,6 @@ class ChessGame:
         numeric_square = self.get_numeric_boardcoord(square)
         self._active_board[numeric_square] = occupant
 
-
     def move_piece(self, from_coord, to_coord):
         """method that takes a reference to a piece by the coordinate it is on, as well as a reference
         to the coordinate it should move to, and then moves the piece to that coordinate."""
@@ -337,6 +335,7 @@ class ChessGame:
         current_occupant = self.get_piece_on_square(to_coord)
         if (current_occupant == '.'):
             moving_piece.set_square(to_coord)
+            moving_piece.set_has_moved()
             self.update_square(to_coord, moving_piece)
             self.update_square(from_coord, '.')
             return
@@ -346,15 +345,14 @@ class ChessGame:
             captured_piece.set_square(None)
             self._pieces.remove(current_occupant)
             moving_piece.set_square(to_coord)
+            moving_piece.set_has_moved()
             self.update_square(to_coord, moving_piece)
             self.update_square(from_coord, '.')
             return
         
         else:
-            print("You can't capture your own piece!")
+            # print("You can't capture your own piece!")
             return 
-        
-
 
     def print_board(self):
         """a method that prints the current state of the board to the screen"""
@@ -384,9 +382,6 @@ class ChessGame:
                     print(f"{piece_print_val}", end="   ")
                     
                 total_placed += 1
-
-
-        
 
     def get_start_pieces(self):
         # black and white pawns
@@ -427,12 +422,10 @@ class ChessGame:
         wK1 = Piece('e1', 'K', 'white')
         wQ1 = Piece('d1', 'Q', 'white')
 
-
         # get all pieces stored in official game array
         all_pieces = [bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, bR1, bR2, bN1, bN2, bB1, bB2, bK1, bQ1, wR1, wR2, wN1, wN2, wB1, wB2, wK1, wQ1]
         for this_piece in all_pieces:
             self._pieces.append(this_piece)
-
         #for piece in self._pieces:
         #    for coord in self._boardcoordinates:
         #        if piece.get_square() == coord:
@@ -578,6 +571,16 @@ class ChessGame:
                 print("Time to promote this pawn")
                     
                 return pawn_forward_options
+
+    def get_promotion_choice(self):
+        promotion_choice = input("Enter either 'Q', 'R', 'N', or 'B':  ")
+        invalid = bool(
+            promotion_choice != 'Q' and promotion_choice != 'R' and promotion_choice != 'N' and promotion_choice != 'B')
+        while invalid:
+            print("Not a valid selection")
+            promotion_choice = input("Enter either 'Q', 'R', 'N', or 'B':  ")
+
+        return promotion_choice
 
     def rook_options_this_turn(self, rook_pos):
         current_options = []
@@ -732,7 +735,7 @@ class ChessGame:
         # take list of tuples which is the list of moves  (self._game_history) of the current game
 
         # iterate through list of moves simply calling to get to current position
-        hypothetical.copy_position(self._game_history)
+        hypothetical.copy_position(self._game_history, self._promotion_history)
         # play the hypothetical king move by calling move_piece King to try_square
         hypothetical.move_piece(king_start_square, try_square)
         # check opposing threats.  ***Still need to modify for pawns...only include their kill places***
@@ -744,11 +747,12 @@ class ChessGame:
         # Otherwise return true
         return True
 
+
     def in_check(self, color):
         hypothetical = ChessGame()
         hypothetical.get_start_pieces()
         hypothetical.set_pieces()
-        hypothetical.copy_position(self._game_history)
+        hypothetical.copy_position(self._game_history, self._promotion_history)
         if color == 'black':
             ally_pieces = hypothetical.get_opposing_pieces('white')
             for ally in ally_pieces:
@@ -772,16 +776,19 @@ class ChessGame:
         # reaching this means not in check
         return False
 
-    def checkmate_delivered(self, start_square, try_square, color):
+    def checkmate_delivered_on_promotion(self, start_square, try_square, color, promotion_type):
         # get checked position
         hypothetical = ChessGame()
         hypothetical.get_start_pieces()
         hypothetical.set_pieces()
-        hypothetical.copy_position(self._game_history)
+        hypothetical.copy_position(self._game_history, self._promotion_history)
         hypothetical.move_piece(start_square, try_square)
+        promoted_piece = hypothetical.get_piece_on_square(try_square)
+        promoted_piece.set_shape(promotion_type)
         # store move in hypothetical history
         this_move = (start_square, try_square)
         hypothetical._game_history.append(this_move)
+        hypothetical._promotion_history.append((try_square, promotion_type))
 
         # pull up checked team's pieces
         if color == 'black':
@@ -874,12 +881,147 @@ class ChessGame:
         # return True to alert of status
         return True
 
+    def checkmate_delivered(self, start_square, try_square, color):
+        # get checked position
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history, self._promotion_history)
+        hypothetical.move_piece(start_square, try_square)
+        # store move in hypothetical history
+        this_move = (start_square, try_square)
+        hypothetical._game_history.append(this_move)
+
+
+        # pull up checked team's pieces
+        if color == 'black':
+            # black did checking, let's pull up white's allies
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            # iterate through checked team's pieces
+            for ally in ally_pieces:
+                # grab piece's square for reference starting_point
+                starting_point = ally.get_square()
+                # get piece's options
+                if ally.get_shape() == 'K':
+                    potentials = hypothetical.king_directionals(starting_point)
+                    for option in potentials:
+                        if hypothetical.king_move_is_legal(starting_point, option, 'white'):
+                            # see if still check...if not return False
+                            if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                                return False
+
+                if ally.get_shape()=='Q':
+                    potentials = hypothetical.queen_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+                if ally.get_shape()=='B':
+                    potentials = hypothetical.bishop_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+                if ally.get_shape()=='N':
+                    potentials = hypothetical.knight_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+                if ally.get_shape()=='R':
+                    potentials = hypothetical.rook_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+
+                if ally.get_shape() == 'p':
+                    potentials = hypothetical.pawn_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'white') is False:
+                            return False
+
+        if color == 'white':
+            # white did checking, let's pull up black's allies
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            # iterate through checked team's pieces
+            for ally in ally_pieces:
+                # grab piece's square for reference starting_point
+                starting_point = ally.get_square()
+                # get piece's options
+                if ally.get_shape() == 'K':
+                    potentials = hypothetical.king_directionals(starting_point)
+                    for option in potentials:
+                        if hypothetical.king_move_is_legal(starting_point, option, 'black'):
+                            # see if still check...if not return False
+                            if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                                return False
+
+                if ally.get_shape() == 'Q':
+                    potentials = hypothetical.queen_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+                if ally.get_shape() == 'B':
+                    potentials = hypothetical.bishop_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+                if ally.get_shape() == 'N':
+                    potentials = hypothetical.knight_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+                if ally.get_shape() == 'R':
+                    potentials = hypothetical.rook_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+
+                if ally.get_shape() == 'p':
+                    potentials = hypothetical.pawn_options_this_turn(starting_point)
+                    for option in potentials:
+                        if hypothetical.still_in_check(starting_point, option, 'black') is False:
+                            return False
+
+        # if we get this far, that means there was no saving move...checkmate has been delivered
+        # return True to alert of status
+        return True
+
+    def still_check_after_promotion(self, start_square, try_square, color, promotion_type):
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history, self._promotion_history)
+        hypothetical.move_piece(start_square, try_square)
+        promoted_piece = hypothetical.get_piece_on_square(try_square)
+        promoted_piece.set_shape(promotion_type)
+
+        if color == 'black':
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            for ally in ally_pieces:
+                # find potentially attacked king
+                if ally.get_shape() == "K":
+                    # look at his enemy's threats after move
+                    enemy_threats = hypothetical.get_opposing_team_threats('black')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            # if a threatened square is the square he's on, return True
+                            return True
+
+        if color == 'white':
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            for ally in ally_pieces:
+                if ally.get_shape() == "K":
+                    enemy_threats = hypothetical.get_opposing_team_threats('white')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            return True
+
+        return False
+
     def still_in_check(self, start_square, try_square, color):
         # generate position on hypothetical board
         hypothetical = ChessGame()
         hypothetical.get_start_pieces()
         hypothetical.set_pieces()
-        hypothetical.copy_position(self._game_history)
+        hypothetical.copy_position(self._game_history, self._promotion_history)
         hypothetical.move_piece(start_square, try_square)
 
         if color == 'black':
@@ -899,6 +1041,37 @@ class ChessGame:
             for ally in ally_pieces:
                 if ally.get_shape() == "K":
                     enemy_threats = hypothetical.get_opposing_team_threats('white')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            return True
+
+        return False
+
+    def checked_opponent_on_promotion(self, start_square, try_square, color, promotion_type):
+        hypothetical = ChessGame()
+        hypothetical.get_start_pieces()
+        hypothetical.set_pieces()
+        hypothetical.copy_position(self._game_history, self._promotion_history)
+        hypothetical.move_piece(start_square, try_square)
+        promoted_piece = hypothetical.get_piece_on_square(try_square)
+        promoted_piece.set_shape(promotion_type)
+        if color == 'black':
+            ally_pieces = hypothetical.get_opposing_pieces('black')
+            for ally in ally_pieces:
+                # find potentially attacked king
+                if ally.get_shape() == "K":
+                    # look at his enemy's threats after move
+                    enemy_threats = hypothetical.get_opposing_team_threats('white')
+                    for threatened_square in enemy_threats:
+                        if ally.get_square() == threatened_square:
+                            # if a threatened square is the square he's on, return True
+                            return True
+
+        if color == 'white':
+            ally_pieces = hypothetical.get_opposing_pieces('white')
+            for ally in ally_pieces:
+                if ally.get_shape() == "K":
+                    enemy_threats = hypothetical.get_opposing_team_threats('black')
                     for threatened_square in enemy_threats:
                         if ally.get_square() == threatened_square:
                             return True
@@ -910,7 +1083,7 @@ class ChessGame:
         hypothetical = ChessGame()
         hypothetical.get_start_pieces()
         hypothetical.set_pieces()
-        hypothetical.copy_position(self._game_history)
+        hypothetical.copy_position(self._game_history, self._promotion_history)
         hypothetical.move_piece(start_square, try_square)
 
         if color == 'black':
@@ -936,6 +1109,90 @@ class ChessGame:
 
         return False
 
+    def castle_options(self, team):
+        options = []
+        if team =='white':
+            #if self.in_check('white') is False:
+            #   return options
+            king = self.get_piece_on_square('e1')
+            if king == '.':
+                return options
+        if team == 'black':
+            # if self.in_check('black') is False:
+            #   return options
+            king = self.get_piece_on_square('e8')
+            if king == '.':
+                return options
+        if king.get_shape() != 'K':
+            return options
+        if king.get_team() != team:
+            return options
+        if king.get_has_moved() == 'yes':
+            return options
+
+        if team == 'white':
+            a1_occupant = self.get_piece_on_square('a1')
+            h1_occupant = self.get_piece_on_square('h1')
+            if a1_occupant != '.':
+                if a1_occupant.get_team()==team:
+                    if a1_occupant.get_shape() == 'R':
+                        if a1_occupant.get_has_moved() == 'no':
+                            b1_empty = (self.get_piece_on_square('b1')=='.')
+                            c1_empty = (self.get_piece_on_square('c1')=='.')
+                            d1_empty = (self.get_piece_on_square('d1')=='.')
+                            if b1_empty is True and c1_empty is True and d1_empty is True:
+                                attacked_squares = self.get_opposing_team_threats('white')
+                                if ('c1' not in attacked_squares) and ('d1' not in attacked_squares):
+                                    options.append('c1')
+
+            if h1_occupant != '.':
+                if h1_occupant.get_team() == team:
+                    if h1_occupant.get_shape() == 'R':
+                        if h1_occupant.get_has_moved() == 'no':
+                            f1_empty = (self.get_piece_on_square('f1') == '.')
+                            g1_empty = (self.get_piece_on_square('g1') == '.')
+
+                            if f1_empty is True and g1_empty is True:
+                                attacked_squares = self.get_opposing_team_threats('white')
+                                if ('f1' not in attacked_squares) and ('g1' not in attacked_squares):
+                                    options.append('g1')
+
+        # if black checking for black castling options
+        if team == 'black':
+            a8_occupant = self.get_piece_on_square('a8')
+            h8_occupant = self.get_piece_on_square('h8')
+            if a8_occupant != '.':
+                if a8_occupant.get_team() == team:
+                    if a8_occupant.get_shape() == 'R':
+                        if a8_occupant.get_has_moved() == 'no':
+                            b8_empty = (self.get_piece_on_square('b8') == '.')
+                            c8_empty = (self.get_piece_on_square('c8') == '.')
+                            d8_empty = (self.get_piece_on_square('d8') == '.')
+                            if b8_empty is True and c8_empty is True and d8_empty is True:
+                                attacked_squares = self.get_opposing_team_threats('white')
+                                if ('c8' not in attacked_squares) and ('d8' not in attacked_squares):
+                                    options.append('c8')
+
+            if h8_occupant != '.':
+                if h8_occupant.get_team() == team:
+                    if h8_occupant.get_shape() == 'R':
+                        if h8_occupant.get_has_moved() == 'no':
+                            f8_empty = (self.get_piece_on_square('f8') == '.')
+                            g8_empty = (self.get_piece_on_square('g8') == '.')
+
+                            if f8_empty is True and g8_empty is True:
+                                attacked_squares = self.get_opposing_team_threats('white')
+                                if ('f8' not in attacked_squares) and ('g8' not in attacked_squares):
+                                    options.append('g8')
+        return options
+
+    def castle_possible(self, team):
+        castling_moves = self.castle_options(team)
+        if castling_moves == []:
+            return False
+        else:
+            return True
+
     def tuple_move(self, moved_from, moved_to):
         approved_move = (moved_from, moved_to)
         return approved_move
@@ -944,20 +1201,38 @@ class ChessGame:
         self._game_history.append(approved_move)
         return 
 
-    def copy_position(self, documented_moves_list):
+    def copy_position(self, documented_moves_list, promotions_history):
+        promotions = promotions_history
+        number_of_promotions_accounted_for = 0
         for move in documented_moves_list:
             moved_from = move[0]
             moved_to = move[1]
+            from_rank = moved_from[1]
+            to_rank = moved_to[1]
             this_move = (moved_from, moved_to)
             self.move_piece(moved_from, moved_to)
+            if self.get_piece_on_square(moved_to).get_shape() == 'p' and ((from_rank=='7' and to_rank =='8') or (from_rank=='2' and to_rank == '1')):
+                promotion_datum = promotions[number_of_promotions_accounted_for]
+                promoted_piece = self.get_piece_on_square(moved_to)
+                choice = promotion_datum[1]
+                promoted_piece.set_shape(choice)
+                number_of_promotions_accounted_for += 1
+                self._promotion_history.append(promotion_datum)
+
             self._game_history.append(this_move)
+
             self.update_moving_team()
             
         return 
 
     def play(self, origin, destination):
-        print(f"({self.get_moving_team_color}'s turn)")
+        this_move = (origin, destination)
+        # print(f"({self.get_moving_team_color()}'s turn)")
         moving_piece = self.get_piece_on_square(origin)
+        if moving_piece =='.':
+            print(f"There is no piece on {origin}")
+            return
+        moving_team = moving_piece.get_team()
 
         # check that turn and color match up
         if moving_piece.get_team() != self.get_moving_team_color():
@@ -967,10 +1242,50 @@ class ChessGame:
         # check that move is on board
         if self.move_is_on_board(origin, destination) is False:
             return
-        
+
+        # IF CASTLING IS POSSIBLE AND THE KING IS MOVING TO A CASTLING OPTION, PERFORM CASTLE AND RETURN
+
+        if self.castle_possible(moving_team) and moving_piece.get_shape() == 'K' \
+                and this_move[1] in self.castle_options(moving_team):
+
+            if this_move[1] == 'g1':
+                rook_move = ('h1', 'f1')
+            if this_move[1] == 'c1':
+                rook_move = ('a1', 'd1')
+            if this_move[1] == 'g8':
+                rook_move = ('h8', 'f8')
+            if this_move[1] == 'c8':
+                rook_move = ('a8', 'd8')
+
+            self.move_piece(this_move[0], this_move[1])
+            self._game_history.append(this_move)
+            checked_enemy_on_move = bool(self.checked_opponent(rook_move[0], rook_move[1], moving_team))
+            if checked_enemy_on_move:
+                game_over = bool(self.checkmate_delivered(rook_move[0], rook_move[1], 'white'))
+                if game_over:
+                    self.move_piece(rook_move[0], rook_move[1])
+                    self._game_history.append(rook_move)
+                    self.print_board()
+                    print(f"CHECKMATE\nThe {self.get_moving_team_color()} team has won!!")
+                    self.reset_game()
+                    return
+                else:
+                    print(f"CHECK!!")
+
+                # include king's move component in history for checking check status hypothetically
+
+            self.move_piece(rook_move[0], rook_move[1])
+            self._game_history.append(rook_move)
+            self.update_moving_team()
+            return
+
         # make sure that the specific piece is moving to a valid option in the position
         piece_type = moving_piece.get_shape()
         if piece_type == "K":
+            regular_range = self.king_directionals(origin)
+            if destination not in regular_range:
+                print(f"That move is not in the King's range")
+                return
             legal_king_move = bool(self.king_move_is_legal(origin, destination, self.get_moving_team_color()))
             if legal_king_move is False:
                 print(f"That is not an option for the {moving_piece.get_team()} king on {origin}")
@@ -1006,6 +1321,50 @@ class ChessGame:
                 print(f"That is not an option for the {moving_piece.get_team()} piece on {origin}")
                 return
 
+
+        # IN CASE OF PROMOTION
+        if( (moving_team == 'white') and (origin[1] == '7') and (destination[1] == '8') )\
+                or ((moving_team == 'black') and(origin[1]=='2') and (destination[1]=='1')):
+            promotion_choice = self.get_promotion_choice()
+            in_check = bool(self.still_check_after_promotion(origin, destination, moving_team, promotion_choice))
+            if in_check:
+                print(f"Find a move that avoids check!")
+                return
+                # check is_check status
+            checked_enemy_on_promotion = bool(self.checked_opponent_on_promotion(origin, destination, moving_team, promotion_choice))
+            if checked_enemy_on_promotion:
+                game_over = bool(self.checkmate_delivered_on_promotion(origin, destination, moving_team, promotion_choice))
+                if game_over:
+                    self.move_piece(origin, destination)
+                    promoted_piece = self.get_piece_on_square(destination)
+                    promoted_piece.set_shape(promotion_choice)
+                    this_move = (origin, destination)
+                    this_promotion = (destination, promotion_choice)
+                    self._game_history.append(this_move)
+                    self._promotion_history.append(this_promotion)
+                    self.print_board()
+                    print(f"CHECKMATE\nThe {self.get_moving_team_color()} team has won!!")
+                    print(f"(Here is your move history: {self._game_history})")
+                    self.reset_game()
+                    return
+                else:
+                    print(f"CHECK!!")
+            # make move
+            self.move_piece(origin, destination)
+
+            promoted_piece = self.get_piece_on_square(destination)
+            promoted_piece.set_shape(promotion_choice)
+            this_promotion = (destination, promotion_choice)
+
+            # store move
+            self._game_history.append(this_move)
+            self._promotion_history.append(this_promotion)
+            # update moving team
+            self.update_moving_team()
+
+            return
+
+
         in_check = bool(self.still_in_check(origin, destination, self.get_moving_team_color()))
 
         if in_check:
@@ -1022,6 +1381,7 @@ class ChessGame:
                 self._game_history.append(this_move)
                 self.print_board()
                 print(f"CHECKMATE\nThe {self.get_moving_team_color()} team has won!!")
+                print(f"(Here is your move history: {self._game_history})")
                 self.reset_game()
                 return
             else:
@@ -1030,7 +1390,6 @@ class ChessGame:
         self.move_piece(origin, destination)
 
         # store move
-        this_move = (origin, destination)
         self._game_history.append(this_move)
 
         # update moving team
@@ -1045,6 +1404,13 @@ class Piece:
         self._square = square
         self._shape = shape
         self._team = team
+        self._has_moved = 'no'
+
+    def get_has_moved(self):
+        return self._has_moved
+
+    def set_has_moved(self):
+        self._has_moved = 'yes'
 
     def get_square(self):
         return self._square
@@ -1071,69 +1437,29 @@ class Piece:
 
 
 def main():
-    """
-    game.print_board()
-    print("\n\n")
-    game.print_board()
-    print("\n\n")
-    game.move_piece('a2', 'a4')
-    print("\n\n")
-    game.move_piece('a7', 'a6')
-    print("\n\n")
-    game.move_piece('a1', 'a3')
-    print("\n\n")
-    game.move_piece('a4', 'a5')
-    print("\n\n")
-    game.move_piece('a3', 'e3')
-    print("\n\n")
-    game.move_piece('h7', 'h6')
-    game.move_piece('e3', 'e7')
-    game.move_piece('d2', 'd5')
-    game.print_board()
-    bishop_options = game.bishop_options_this_turn('d5')
-    rook_options = game.rook_options_this_turn('d5')
-    queen_options = game.queen_options_this_turn('d5')
-
-    print(bishop_options)
-    print("\n")
-    print(rook_options)
-    print("\n")
-    print(queen_options)
-    game.move_piece('f2', 'f4')
-    game.move_piece('g7', 'g5')
-    game.print_board()
-    killer_rook_options = game.rook_options_this_turn('e7')
-    black_g_pawn_options = game.pawn_options_this_turn('g5')
-    white_f_pawn_options = game.pawn_options_this_turn('f4')
-
-    print(killer_rook_options)
-    print(black_g_pawn_options)
-    print(white_f_pawn_options)
-    #up_left = game.bishop_queen_up_left_range('d5')
-    #down_right = game.bishop_queen_down_right_range('d5')
-    #down_left = game.bishop_queen_down_left_range('d5')
-    #print(f"upright range is: {up_right}")
-    #print(f"upleft range is: {up_left}")
-    #print(f"downright range is: {down_right}")
-    #print(f"downleft range is: {down_left}")
-    # """
+    """Runs the game"""
 
     game = ChessGame()
     game.get_start_pieces()
     game.set_pieces()
 
-   
-
     while True:
         print(f"{game.get_moving_team_color()}'s turn!")
         game.print_board()
-        prompt_user_action = input("Type 'm' to move a piece or 'r' to reset game:   ")
+        prompt_user_action = input("Type 'm' to move a piece or 's' to start the game over:   ")
         if prompt_user_action == 'm':
             prompt_origin = input("Enter a square to move from:  ")
             prompt_destination = input("Enter a square to move to:  ")
+            move = (prompt_origin, prompt_destination)
+            if game.move_is_on_board(move[0], move[1]) is False:
+                while game.move_is_on_board(prompt_origin, prompt_destination) is False:
+                    print("NON VALID SQUARE(S) ENTERED")
+                    prompt_origin = input("Enter a square to move from:  ")
+                    prompt_destination = input("Enter a square to move to:  ")
+
             game.play(prompt_origin, prompt_destination)
             
-        if prompt_user_action == 'r':
+        if prompt_user_action == 's':
             game.reset_game()
 
 
