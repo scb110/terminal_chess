@@ -1,10 +1,5 @@
-#from dataclasses import replace
-#from functools import total_ordering
-#from turtle import down
-#from unicodedata import numeric
-#from modules.colors import Colors
-#c = Colors
-
+from colors import MyColors
+c = MyColors
 
 class ChessGame:
     """This class provides the foundation for two players to engaage in a
@@ -367,8 +362,10 @@ class ChessGame:
                 else:
                     piece = self._active_board[square]
                     piece_print_val = piece.get_shape()
-                    print(f"{piece_print_val}")
-
+                    if piece.get_team() == 'white':
+                        print(f"{c.cyan}{piece_print_val}{c.end}")
+                    if piece.get_team() == 'black':
+                        print(f"{c.red}{piece_print_val}{c.end}")
                 total_placed += 1
                 
             else:
@@ -379,8 +376,10 @@ class ChessGame:
                 else:
                     piece = self._active_board[square]
                     piece_print_val = piece.get_shape()
-                    print(f"{piece_print_val}", end="   ")
-                    
+                    if piece.get_team() == 'white':
+                        print(f"{c.cyan}{piece_print_val}{c.end}", end="   ")
+                    if piece.get_team() == 'black':
+                        print(f"{c.red}{piece_print_val}{c.end}", end="   ")
                 total_placed += 1
 
     def get_start_pieces(self):
@@ -641,6 +640,8 @@ class ChessGame:
         return active_pieces
 
     def king_directionals(self, king_pos):
+        king = self.get_piece_on_square(king_pos)
+        king_team = king.get_team()
         numeric_coord = self.get_numeric_boardcoord(king_pos)
         side_1 = numeric_coord + 1
         side_2 = numeric_coord + 11
@@ -656,7 +657,12 @@ class ChessGame:
             on_board = self.coordinate_is_on_board(option)
             if on_board is True:
                 square = self.get_alphanumeric_by_numeric(option)
-                squares_on_board.append(square)
+                if self.get_piece_on_square(square) == '.':
+                    squares_on_board.append(square)
+                if self.get_piece_on_square(square) != '.':
+                    piece_on_square = self.get_piece_on_square(square)
+                    if piece_on_square.get_team() != king_team:
+                        squares_on_board.append(square)
         return squares_on_board
 
     def get_opposing_pieces(self, moving_team):
@@ -1286,7 +1292,7 @@ class ChessGame:
             if destination not in regular_range:
                 print(f"That move is not in the King's range")
                 return
-            legal_king_move = bool(self.king_move_is_legal(origin, destination, self.get_moving_team_color()))
+            legal_king_move = bool(self.king_move_is_legal(origin, destination, moving_team))
             if legal_king_move is False:
                 print(f"That is not an option for the {moving_piece.get_team()} king on {origin}")
                 return
